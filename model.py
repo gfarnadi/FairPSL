@@ -28,14 +28,14 @@ def makeDataDictionary(dataTextFile):
         dataDictionary[item[0].replace(' ','')] = items[1].replace(' ','')
     return dataDictionary
   
-def ExtractPotentialFunction(modelTextFile, dataTextFile):
+def extractPotentialFunction(modelTextFile, dataTextFile):
     dataDictionary = makeDataDictionary(dataTextFile)
     rules = readLines(modelTextFile)
     groundedRules = grounding(rules, dataDictionary)
     potentialFunctions = []
     atomVariableDict = {}
     for groundedRule in groundedRules:
-        potentialFunction = parse(groundedRule, atomVariableDict, dataDictionary)
+        potentialFunction = parseRule(groundedRule, atomVariableDict, dataDictionary)
         potentialFunctions.append(potentialFunction)
     return potentialFunctions
 
@@ -48,9 +48,9 @@ def grounding(rules, dataDictionary):
     return groundedRules
     
 
-def MapInference(potentialFunctions,atomVariableDict):
+def mapInference(potentialFunctions,atomVariableDict):
     objective = Minimize(sum_entries(potentialFunctions))
-    constraints = [0 <= x, x <= 1]
+    constraints = []
     prob = Problem(objective, constraints)
     # The optimal objective is returned by prob.solve().
     result = prob.solve()
@@ -59,13 +59,12 @@ def MapInference(potentialFunctions,atomVariableDict):
     return results
  
 def RunModel(modelTextFile, dataTextFile, resultTextFile):  
-    potentialFunctions = ExtractPotentialFunction(modelTextFile, dataTextFile)
-    results = MapInference(potentialFunctions)
+    potentialFunctions = extractPotentialFunction(modelTextFile, dataTextFile)
+    results = mapInference(potentialFunctions)
     saveFile(resultTextFile,results)
     
       
-def parse(groundedRule, atomVariableDict, dataDictionary):
-    potentialFunction = ''
+def parseRule(groundedRule, atomVariableDict, dataDictionary):
     ruleContent = rule.split('->')
     headAtom = ruleContent[1].replace(' ','')
     if headAtom in dataDictionary:
