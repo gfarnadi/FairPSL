@@ -96,7 +96,7 @@ def groundRule(rule, dataDictionary):
     elif len(ruleStruct.getBody())==1:
         #type2: A -->B
         groundedRules = groundTypeTwo(ruleStruct, dataDictionary)
-    elif len(ruleStruct.getBody())==1:
+    elif len(ruleStruct.getBody())>1:
         #type3: A & B --> C
         groundedRules = groundTypeThree(ruleStruct, dataDictionary)
     else:
@@ -227,7 +227,7 @@ def groundTypeThree(ruleStruct, dataDictionary):
     return groundedRules     
         
 
-
+#get grounded values for each argument from the dictionary, e.g., friend(A,B) for argument A, we may have these values in DB: Alice, Bob, Jack, etc.
 def makeGroundDictionary(ruleStruct, dataDictionary,argsDict1, argsDict2):
     argGroundedDict = {}
     for arg in argsDict1:
@@ -262,7 +262,6 @@ def getGroundedRules(ruleStruct, argGroundedDict, headPredicate, bodyPredicates)
     groundedRules =[]
     groundedRules2 =[]
     finalGroundedRules =[]
-    #here we limit the size to 3 
     if (len(headPredicate.getArguments())==1):
         argHead1 = headPredicate.getArguments()[0]
     else: 
@@ -341,3 +340,18 @@ def groundBodies(groundedRules, argGroundedDict, headArgs, bodyPredicates):
             
             
 
+def groundFormula(predicates, dataDictionary):
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
