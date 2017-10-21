@@ -28,6 +28,7 @@ def main(outfilename):
     # 20:  Lived(P1,L) & Lived(P2,L) & P1!=P2   -> Knows(P1,P2)
     ground_rules = [(lived_rel[(A, C)],
                      lived_rel[(B, C)],
+                     (True, float(A!=B)),
                      knows_rel[(A, B)])
                     for A in people
                     for B in people
