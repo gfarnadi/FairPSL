@@ -2,20 +2,24 @@ from __future__ import print_function
 import pulp
 
 class Math_prob:
-    def __init__(self):
+    def __init__(self, var_ids):
         self.num_vars = 0
         self.num_cons_linear = 0
         self.num_cons_nonlinear = 0
         self.vars = dict()
+        self.vid_dict = dict()
         self.cons_linear = dict()
         self.objective = dict()
         self.solutions = dict()
-    
+        
+        for vid in var_ids:
+            self.vid_dict[self.add_var()] = vid
+            
     def add_var(self, lower=0, upper=1):
         self.vars[self.num_vars] = (lower, upper)
         self.num_vars += 1
         return self.num_vars - 1
-    
+        
     def get_vars(self):
         variables = [(var_id, self.vars[var_id][0], self.vars[var_id][1]) for var_id in self.vars]
         return variables
@@ -102,7 +106,10 @@ class Math_prob:
         problem.solve()
         self.solutions.clear()
         for variable in problem.variables():
-            self.solutions[int(variable.name)] = variable.varValue
+            vnum = int(variable.name)
+            if vnum in self.vid_dict:
+                vid = self.vid_dict[vnum]
+                self.solutions[vid] = variable.varValue
         self.obj_val = pulp.value(problem.objective)
 
    
@@ -176,14 +183,25 @@ def check_rule(rule, signs):
 
     return min_val < 1
 
-def add_rule(rules, signs, weight, problem):
-    counter = 0
-    for r in rules:
-        if not check_rule(r, signs): continue
-        Dist = psl_rule(problem, r, signs)
+def add_rule(rule, signs, weight, problem):
+    if check_rule(rule, signs): 
+        Dist = psl_rule(problem, rule, signs)
         problem.add_to_objective(Dist, weight)
-        counter += 1
-    return counter    
+
+def solve_mip(r_list):
+    var_ids = set()
+    for _, body, head in r_list:
+        var_ids |= set([b[1] for b in body if not b[0]])
+        var_ids |= set([h[1] for h in body if not h[0]])
+
+    problem = Math_prob(var_ids)
+    for weight, body, head in r_list:
+        assert (len(head) == 1)
+        rule = tuple([b[:-1] for b in body] + [h[:-1] for h in head])
+        signs = tuple([b[-1] for b in body] + [h[-1] for h in head])
+        add_rule(rule, signs, weight, problem)
+    problem.pulp_solve()
+    return problem.solutions
     
 if __name__ == '__main__':
         exit(1)
