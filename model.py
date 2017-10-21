@@ -1,7 +1,9 @@
 import os
 from cvxpy import *
 import numpy
- 
+from dataHandler import loadDataToDB,makeAtomDictionary
+
+
 def readLines(file_name):
     items = []
     if os.path.exists(file_name):
@@ -20,16 +22,17 @@ def saveFile(path, content):
         out.write(content + '\n')
          
      
-def makeDataDictionary(dataTextFile):
+def makeTextDataDictionary(dataTextFile):
     dataDictionary = {}
     dataLines = readLines(dataTextFile)
     for line in dataLines:
         items = line.split('\t')
         dataDictionary[item[0].replace(' ','')] = items[1].replace(' ','')
     return dataDictionary
-  
-def extractPotentialFunction(modelTextFile, dataTextFile):
-    dataDictionary = makeDataDictionary(dataTextFile)
+
+
+def extractPotentialFunction(modelTextFile, dataTextFolder):
+    dataDictionary = makeAtomDictionary(loadDataToDB(dataTextFolder))
     rules = readLines(modelTextFile)
     groundedRules = grounding(rules, dataDictionary)
     potentialFunctions = []

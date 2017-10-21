@@ -341,6 +341,7 @@ def groundBodies(groundedRules, argGroundedDict, headArgs, bodyPredicates):
             
 
 def groundFormula(predicates, dataDictionary):
+    pass
     
     
     
