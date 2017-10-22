@@ -4,9 +4,9 @@
 import sys
 from tiny_utils import read_link_data, write_link_mpe
 from tiny_mip import solve_mip
-#from tiny_cvx import solve_cvx
+from tiny_cvx import solve_cvx
 
-def main(outfilename):
+def main(outfilename, solver):
 
     (knows_rel, likes_rel,
     lived_rel, people,
@@ -100,11 +100,18 @@ def main(outfilename):
     weight = 5.0
     r_list += get_list(weight, ground_rules, signs)
     
-    solutions = solve_mip(r_list)
+    if solver == 'mip':
+        solutions = solve_mip(r_list)
+    elif solver == 'cvx':
+        solutions = solve_cvx(r_list)
+        
     write_link_mpe(outfilename, people, knows_rel, solutions)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('usage: %s [outfile]'%(sys.argv[0]))
+        print('usage: %s [outfile] [solver?]'%(sys.argv[0]))
         exit(1)
-    main(sys.argv[1])
+    solver = 'mip'
+    if len(sys.argv) == 3:
+        solver = sys.argv[2]
+    main(sys.argv[1], solver)
