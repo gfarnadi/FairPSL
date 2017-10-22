@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
 import cvxpy
 
+'''
+ - *r_list* is a list of tuples (weight, body, head)
+ - *body* and *head* are lists of tuples (is_constant, value/id, is_negative)
+ - *is_constant* is a flag, True if the truth value is known, False otherwise
+ - *value/id* equals the truth value if it is known, 
+   and is the id of the corresponding variable otherwise
+ - *is_negative* is a flag, True if the atom is negated in the rule, 
+   False otherwise
+'''
 def map_inference(r_list):
     var_ids = set()
     for _, body, head in r_list:
@@ -35,6 +44,8 @@ def map_inference(r_list):
                 expr -= (1-y)
             else:
                 expr -= y
+
+        # pos(x) is equivalent to max{x, 0}
         f += weight * cvxpy.pos(expr)
         
     objective = cvxpy.Minimize(f)
