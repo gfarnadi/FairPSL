@@ -41,7 +41,7 @@ def dataGenerator(dataPath):
     print('generate complex relations')
     affilitaionDict = affiliationGenerator(paperSize, authorDict, inistitueDict, n , p ,authorStringIndex,inistituteSize, instituteStringIndex, dataPath+'affiliation.txt' )
     positiveDict = positive_review_generator(paperDict,submitDict,affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
-    summaryGenerator(paperDict, positiveDict, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
+    summary_generator(paperDict, positiveDict, numberOfReviewerPerPaper, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
     
     
 def fileGenerator(size, filePath, stringIndex):
@@ -212,43 +212,33 @@ def positive_review_generator(paper_dict, submit_dict,
                 positive_dict[key] = 1.0
             else:
                 positive_dict[key] = 0.0
-            (reviewer_string_index + str(reviewer) +
+            text += (reviewer_string_index + str(reviewer) +
                     '\t' + paper + '\t' + str(positive_dict[key]) + '\n')
 
     saveFile(data_path, text)
     return positive_dict   
- 
-#this in specificly for 2 reviews
-def summaryGenerator(paperDict, positiveDict, reviewerStringIndex, summaryProbability, dataPath):
+    
+def summary_generator(paper_dict, positive_dict, 
+                      num_reviews_per_paper, reviewer_string_index,
+                      summary_probability, data_path):
+    prob_dict = dict()
+    for i in range(2**num_reviews_per_paper):
+        prob_dict[__num2bits(i, num_reviews_per_paper)] = summary_probability[i]
+    
     text = ''
-    for paper in paperDict:
-        reviewer1 =reviewerStringIndex+str(0)+paper
-        reviewer2 =reviewerStringIndex+str(1)+paper
-        review1 = positiveDict[reviewer1]
-        review2 = positiveDict[reviewer2]
-        randomNumber = random.random()
-        if (review1 == 0.0 and review2 == 0.0 ):
-            if (randomNumber<=summaryProbability[0]):
-                text+= paper+'\t'+'1.0'+'\n'
-            else:
-                text+= paper+'\t'+'0.0'+'\n'
-        elif (review1 == 0.0 and review2 == 1.0):
-            if (randomNumber<=summaryProbability[1]):
-                text+= paper+'\t'+'1.0'+'\n'
-            else:
-                text+= paper+'\t'+'0.0'+'\n'
-        elif (review1 == 0.0 and review2 == 1.0):
-            if (randomNumber<=summaryProbability[2]):
-                text+= paper+'\t'+'1.0'+'\n'
-            else:
-                text+= paper+'\t'+'0.0'+'\n'
-        elif (review1 == 1.0 and review2 == 1.0):
-            if (randomNumber<=summaryProbability[3]):
-                text+= paper+'\t'+'1.0'+'\n'
-            else:
-                text+= paper+'\t'+'0.0'+'\n'
-    saveFile(dataPath, text)
+    for paper in paper_dict:
+        key = []
+        for reviewer in range(num_reviews_per_paper):
+            review_key = reviewer_string_index + str(reviewer) + paper
+            review = bool(positive_dict[review_key])
+            key.append(review)
             
+        key = tuple(key)
+        random_number = random.random()
+        summary = float(random_number < prob_dict[key])
+        text += paper + '\t' + str(summary) + '\n'
+    saveFile(data_path, text)
+ 
             
 dataPath = '../reviewData/'            
 dataGenerator(dataPath)   
