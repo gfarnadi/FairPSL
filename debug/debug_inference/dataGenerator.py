@@ -176,6 +176,8 @@ def affiliationGenerator(authorSize, authorDict, inistitueDict, n , p ,
 
     __numbits(0, 3) -> (False, False, False)
     __numbits(1, 3) -> (False, False, True)
+    ...
+    __numbits(6, 3) -> (True,  True,  False)
     __numbits(7, 3) -> (True,  True,  True)
 '''
 def __num2bits(n, nbits):
