@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import numpy 
 import random
@@ -38,7 +40,7 @@ def dataGenerator(dataPath):
     ###
     print('generate complex relations')
     affilitaionDict = affiliationGenerator(paperSize, authorDict, inistitueDict, n , p ,authorStringIndex,inistituteSize, instituteStringIndex, dataPath+'affiliation.txt' )
-    positiveDict = positiveReviewGenerator(paperDict,submitDict,affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
+    positiveDict = positive_review_generator(paperDict,submitDict,affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
     summaryGenerator(paperDict, positiveDict, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
     
     
@@ -140,8 +142,10 @@ def highRankInstituteGenerator(inistituteSize, highRankProb, instituteStringInde
         index+=1
     saveFile(dataPath, text)
     return highRankDict
-
-def affiliationGenerator(authorSize, authorDict, inistitueDict, n , p ,authorStringIndex,inistituteSize, instituteStringIndex, dataPath ):
+    
+def affiliationGenerator(authorSize, authorDict, inistitueDict, n , p ,
+                         authorStringIndex,inistituteSize, instituteStringIndex, 
+                         dataPath ):
     affilitaionDict = {}
     text=''
     index = 0
@@ -150,7 +154,7 @@ def affiliationGenerator(authorSize, authorDict, inistitueDict, n , p ,authorStr
         i = 0
         while i<numberOfSubmission:
             if (index<authorSize):
-                id = authorStringIndex+str(random.randint(1, 100))
+                id = authorStringIndex+str(random.randint(0, 99))
                 if id not in affilitaionDict:
                     text+= id+'\t'+inistitue+'\t'+'1.0'+'\n'
                     affilitaionDict[id] = inistitue
@@ -159,111 +163,61 @@ def affiliationGenerator(authorSize, authorDict, inistitueDict, n , p ,authorStr
         if index<authorSize:
             for author in authorDict:
                 if author not in affilitaionDict:
-                    inistituteID = random.randint(1, inistituteSize)
+                    inistituteID = random.randint(0, inistituteSize-1)
                     text+= author+'\t'+instituteStringIndex+str(inistituteID)+'\t'+'1.0'+'\n'
                     affilitaionDict[author] = instituteStringIndex+str(inistituteID)
     saveFile(dataPath, text)
     return  affilitaionDict
-   
- 
-def positiveReviewGenerator(paperDict,submitDict,affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath):
-    positiveDict = {}
-    text = ''
-    for paper in paperDict:
-        author = submitDict[paper]
-        affilitaion = affilitaionDict[author]
-        rank = highRankDict[affilitaion]
-        student = studentDict[author]
-        acceptable = acceptableDict[paper]
-        randomNumber1 = random.random()
-        randomNumber2 = random.random()
-        randomNums = [randomNumber1, randomNumber2]
-        index = 0
-        if (acceptable == 0.0 and rank == 0.0 and student ==0.0):
-            while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[0]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1
-        elif (acceptable == 0.0 and rank == 0.0 and student ==1.0):
-             while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[1]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1
-        elif (acceptable == 0.0 and rank == 1.0 and student ==0.0):
-             while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[2]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1
-        elif (acceptable == 0.0 and rank == 1.0 and student ==1.0):
-             while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[3]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1  
-        elif (acceptable == 1.0 and rank == 0.0 and student ==0.0):
-             while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[4]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1 
-        elif (acceptable == 1.0 and rank == 0.0 and student ==1.0):
-             while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[5]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1
-        elif (acceptable == 1.0 and rank == 1.0 and student ==0.0):
-             while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[6]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1
-        elif (acceptable == 1.0 and rank == 1.0 and student ==1.0):
-             while index<numberOfReviewerPerPaper:
-                key = reviewerStringIndex+str(index)+paper
-                if (randomNums[index]<=reviewProbability[7]):
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'1.0'+'\n'
-                    positiveDict[key] = 1.0
-                else:
-                    text+=reviewerStringIndex+str(index)+'\t'+paper+'\t'+'0.0'+'\n'
-                    positiveDict[key] = 0.0
-                index+=1
-        else:
-            print('error')
-        saveFile(dataPath, text)
-        return positiveDict
+    
 
+'''
+    Gives a tuple of True/False according to the binary representation
+    of the number:
+
+    __numbits(0, 3) -> (False, False, False)
+    __numbits(1, 3) -> (False, False, True)
+    __numbits(7, 3) -> (True,  True,  True)
+'''
+def __num2bits(n, nbits):
+    bits = [False] * nbits
+    for i in range(1, nbits + 1):
+        bits[nbits - i] = bool(n % 2)
+        n >>= 1
+    return tuple(bits)
+
+    
+def positive_review_generator(paper_dict, submit_dict,
+                              affiliation_dict, high_rank_dict,
+                              student_dict, acceptable_dict,
+                              review_probability, num_reviews_per_paper,
+                              reviewer_string_index, data_path):
+    prob_dict = dict()
+    for i in range(8):
+        prob_dict[__num2bits(i, 3)] = review_probability[i]
+        
+    text = ''
+    positive_dict = dict()
+    for paper in paper_dict:
+        author = submit_dict[paper]
+        affilitaion = affiliation_dict[author]
+        is_high_rank = bool(high_rank_dict[affilitaion])
+        is_student = bool(student_dict[author])
+        is_acceptable = bool(acceptable_dict[paper])
+        prob_key = (is_acceptable, is_high_rank, is_student)
+        
+        for reviewer in range(num_reviews_per_paper):
+            key = reviewer_string_index + str(reviewer) + paper
+            random_number = random.random()
+            if random_number  < prob_dict[prob_key]:
+                positive_dict[key] = 1.0
+            else:
+                positive_dict[key] = 0.0
+            (reviewer_string_index + str(reviewer) +
+                    '\t' + paper + '\t' + str(positive_dict[key]) + '\n')
+
+    saveFile(data_path, text)
+    return positive_dict   
+ 
 #this in specificly for 2 reviews
 def summaryGenerator(paperDict, positiveDict, reviewerStringIndex, summaryProbability, dataPath):
     text = ''
@@ -293,10 +247,10 @@ def summaryGenerator(paperDict, positiveDict, reviewerStringIndex, summaryProbab
                 text+= paper+'\t'+'1.0'+'\n'
             else:
                 text+= paper+'\t'+'0.0'+'\n'
-        saveFile(dataPath, text)
+    saveFile(dataPath, text)
             
             
-dataPath = '/Users/Gfarnadi/Movies/GitRepository/FairPSL/debug/reviewData/'            
+dataPath = '../reviewData/'            
 dataGenerator(dataPath)   
 
 
