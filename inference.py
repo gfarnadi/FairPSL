@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import cvxpy
-
+from fair_measure import riskDifference,riskRatio,riskChance
 '''
  - *r_list* is a list of tuples (weight, body, head)
  - *body* and *head* are lists of tuples (is_constant, value/id, is_negated)
@@ -58,15 +58,14 @@ def fairMapInference(rules, hard_rules, counts):
 
     f_soft, constraints_soft = pslObjective(var_ids, vid_dict, rules) 
     if (len(hard_rules)>0):
-        f_hard, constraints_hard = pslObjective(var_ids, vid_dict, hard_rules)
+        f_hard, constraints_hard = pslHardObjective(var_ids, vid_dict, hard_rules)
     else:
         f_hard = 0
         constraints_hard = []
         
-    f_fair, constraints_fair = fairObjective(var_ids, vid_dict, counts)
-    
+    f_fair = fairObjective(vid_dict, counts)
     f=f_soft+f_hard+f_fair
-    constraints= constraints_soft+ constraints_hard + constraints_fair
+    constraints= constraints_soft+ constraints_hard 
     
     objective = cvxpy.Minimize(f)
     problem = cvxpy.Problem(objective, constraints)
@@ -78,8 +77,10 @@ def fairMapInference(rules, hard_rules, counts):
     return results
 
 
-def fairObjective(var_ids, vid_dict, counts):
-    pass
+def fairObjective(vid_dict, counts):
+    #return riskDifference(counts,vid_dict)
+    #return riskRatio(counts,vid_dict)
+    return riskChance(counts,vid_dict)      
 
 def pslObjective(var_ids, vid_dict, r_list):
     constraints = []
@@ -118,4 +119,39 @@ def pslObjective(var_ids, vid_dict, r_list):
     return f, constraints
 
 
+def pslHardObjective(var_ids, vid_dict, r_list):
+    '''TODO: this should be fixed and hard rules should be added as hard constraints'''
+    constraints = []
+    
+    for vid in var_ids:
+        var = cvxpy.Variable()
+        vid_dict[vid] = var
+        constraints += [0 <= var, var <= 1]
 
+    f = 0        
+    for weight, body, head in r_list:
+        expr = 1
+        for b in body:
+            if b[0]:
+                y = b[1]
+            else:
+                y = vid_dict[b[1]]
+            if b[2]:
+                expr -= y
+            else:
+                expr -= (1-y)
+        for h in head:
+            if h[0]:
+                y = h[1]
+            else:
+                y = vid_dict[h[1]]
+            if h[2]:
+                expr -= (1-y)
+            else:
+                expr -= y
+        if weight == None: 
+            f += hardWeight * cvxpy.pos(expr)
+        else:      
+            # pos(x) is equivalent to max{x, 0}
+            f += weight * cvxpy.pos(expr)
+    return f, constraints

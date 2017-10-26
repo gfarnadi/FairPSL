@@ -151,5 +151,3 @@ def fairGrounding(dataPath):
 
 
 
-
-
