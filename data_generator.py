@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
 
-import os
+import os, shutil
 import numpy 
 import random
+from random import shuffle
 
 def saveFile(path, content):
     with open(path, 'a') as out:
         out.write(content + '\n')
 
-
+def removeFolderContents(folderPath):
+    for the_file in os.listdir(folderPath):
+        file_path = os.path.join(folderPath, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
+    
+    
+    
 def dataGenerator(dataPath):
-    paperSize = 100
+    removeFolderContents(dataPath)
+    ##Initial setup
     inistituteSize = 20
     numberOfReviewerPerPaper = 2
     studentProb = 0.7
@@ -27,10 +39,13 @@ def dataGenerator(dataPath):
     reviewerStringIndex = 'r'
     ####
     print('generate simple attributes')
+    inistitueDict = fileGenerator(inistituteSize, dataPath+'inistitue.txt', instituteStringIndex)
+    paperSize, submissionDict = instituteSubmission(inistitueDict, n , p )
+    print ('number of submissions: '+ str(paperSize))
     authorDict = fileGenerator(paperSize, dataPath+'author.txt', authorStringIndex)
     paperDict = fileGenerator(paperSize, dataPath+'paper.txt', paperStringIndex)
     submitDict = submitGenerator(paperSize, dataPath+'submits.txt',authorStringIndex, paperStringIndex)
-    inistitueDict = fileGenerator(inistituteSize, dataPath+'inistitue.txt', instituteStringIndex) 
+    affilitaionDict = affiliationGenerator(submissionDict, paperSize, n , p ,authorStringIndex, instituteStringIndex, dataPath+'affiliation.txt' )
     ###
     print('generate simple relations')
     studentDict = studentGenerator(paperSize,studentProb,authorStringIndex, dataPath+'student.txt')
@@ -39,10 +54,38 @@ def dataGenerator(dataPath):
     highRankDict = highRankInstituteGenerator(inistituteSize, highRankProb, instituteStringIndex, dataPath+'highRank.txt')
     ###
     print('generate complex relations')
-    affilitaionDict = affiliationGenerator(paperSize, authorDict, inistitueDict, n , p ,authorStringIndex,inistituteSize, instituteStringIndex, dataPath+'affiliation.txt' )
-    positiveDict = positive_review_generator(paperDict,submitDict,affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
-    summary_generator(paperDict, positiveDict, numberOfReviewerPerPaper, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
-    
+    positiveDict = positiveReviewGenerator(paperDict,submitDict,affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
+    summaryGenerator(paperDict, positiveDict, numberOfReviewerPerPaper, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
+
+def instituteSubmission(inistitueDict, n , p ):
+    submissionDict = {}
+    paperSize = 0
+    for inistitue in inistitueDict:
+        numberOfSubmission = numpy.random.binomial(n , p)
+        paperSize+=numberOfSubmission
+        submissionDict[inistitue] = numberOfSubmission
+    return paperSize,submissionDict
+        
+   
+def affiliationGenerator(submissionDict, paperSize, n , p ,
+                         authorStringIndex, instituteStringIndex, 
+                         dataPath ):
+    affilitaionDict = {}
+    text=''
+    index = 0
+    authorList = [i for i in range(paperSize)]
+    shuffle(authorList) 
+    for inistitue in submissionDict:
+        numberOfSubmission = submissionDict[inistitue]
+        i = 0
+        while i<numberOfSubmission:
+            id = authorStringIndex+str(authorList[index])
+            text+= id+'\t'+inistitue+'\t'+'1.0'+'\n'
+            affilitaionDict[id] = inistitue
+            index+=1
+            i+=1
+    saveFile(dataPath, text)
+    return  affilitaionDict
     
 def fileGenerator(size, filePath, stringIndex):
     fileDict = {}
@@ -143,31 +186,7 @@ def highRankInstituteGenerator(inistituteSize, highRankProb, instituteStringInde
     saveFile(dataPath, text)
     return highRankDict
     
-def affiliationGenerator(authorSize, authorDict, inistitueDict, n , p ,
-                         authorStringIndex,inistituteSize, instituteStringIndex, 
-                         dataPath ):
-    affilitaionDict = {}
-    text=''
-    index = 0
-    for inistitue in inistitueDict:
-        numberOfSubmission = numpy.random.binomial(n , p)
-        i = 0
-        while i<numberOfSubmission:
-            if (index<authorSize):
-                id = authorStringIndex+str(random.randint(0, 99))
-                if id not in affilitaionDict:
-                    text+= id+'\t'+inistitue+'\t'+'1.0'+'\n'
-                    affilitaionDict[id] = inistitue
-                index+=1
-            i+=1
-        if index<authorSize:
-            for author in authorDict:
-                if author not in affilitaionDict:
-                    inistituteID = random.randint(0, inistituteSize-1)
-                    text+= author+'\t'+instituteStringIndex+str(inistituteID)+'\t'+'1.0'+'\n'
-                    affilitaionDict[author] = instituteStringIndex+str(inistituteID)
-    saveFile(dataPath, text)
-    return  affilitaionDict
+
     
 
 '''
@@ -188,7 +207,7 @@ def __num2bits(n, nbits):
     return tuple(bits)
 
     
-def positive_review_generator(paper_dict, submit_dict,
+def positiveReviewGenerator(paper_dict, submit_dict,
                               affiliation_dict, high_rank_dict,
                               student_dict, acceptable_dict,
                               review_probability, num_reviews_per_paper,
@@ -220,7 +239,7 @@ def positive_review_generator(paper_dict, submit_dict,
     saveFile(data_path, text)
     return positive_dict   
     
-def summary_generator(paper_dict, positive_dict, 
+def summaryGenerator(paper_dict, positive_dict, 
                       num_reviews_per_paper, reviewer_string_index,
                       summary_probability, data_path):
     prob_dict = dict()
@@ -241,10 +260,11 @@ def summary_generator(paper_dict, positive_dict,
         text += paper + '\t' + str(summary) + '\n'
     saveFile(data_path, text)
  
-            
-dataPath = '../reviewData/'            
+           
+dataPath = './reviewData/'            
 dataGenerator(dataPath)   
 
+ 
 
 
 
