@@ -101,12 +101,13 @@ def fair_grounding():
         head = acceptable_rel[p] + (True,)
         rules.append((5, body, head))
     
+    hard_rules = []
     # inf: Acceptable(P) & Submits(A, P) -> Presents(A)
     for a, p in submits_rel:
         body = [acceptable_rel[p] + (False,), 
                 (True, 1.0, False)]
         head = [presents_rel[a] + (False,)]
-        rules.append((None, body, head))
+        hard_rules.append((None, body, head))
     
     affiliation_dict = dict()
     with open('../reviewData/affiliation.txt') as f:
@@ -142,4 +143,4 @@ def fair_grounding():
         d = presents_rel[a]
         counts.append((F1, F2, d))  
     
-    return rules, counts    
+    return rules, hard_rules, counts    
