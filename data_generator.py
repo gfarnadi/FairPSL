@@ -18,8 +18,6 @@ def removeFolderContents(folderPath):
         except Exception as e:
             print(e)
     
-    
-    
 def dataGenerator(dataPath):
     removeFolderContents(dataPath)
     ##Initial setup
