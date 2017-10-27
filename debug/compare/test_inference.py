@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.append('../..')
 from fair_grounding import fairGrounding
 from inference import mapInference
 from os.path import join as ojoin
@@ -25,4 +27,4 @@ def run_model(data_path, out_path):
             print("'%s'\t%f"%(author, results[vid]), file=f)
 
 if __name__ == '__main__':
-    run_model('./reviewData/', './debug/compare/pypsl_output')
+    run_model('../reviewData/', './pypsl_output')
