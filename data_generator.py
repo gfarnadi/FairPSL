@@ -56,7 +56,7 @@ def dataGenerator(dataPath):
     ###
     print('generate complex relations')
     positiveDict = positiveReviewGenerator(paperDict,submitDict,reviewDict, affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
-    summaryGenerator(paperDict, positiveDict, reviewDict, numberOfReviewerPerPaper, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
+    summaryGenerator(paperDict, positiveDict, reviewDict, numberOfReviewerPerPaper, summaryProbability, dataPath+'positiveSummary.txt')
 
 def instituteSubmission(inistitueDict, n , p ):
     submissionDict = {}
@@ -241,14 +241,14 @@ def positiveReviewGenerator(paper_dict, submit_dict, reviewDict,
                 positive_dict[key] = 1.0
             else:
                 positive_dict[key] = 0.0
-            text += (reviewer_string_index + str(reviewer) +
+            text += (reviewer +
                     '\t' + paper + '\t' + str(positive_dict[key]) + '\n')
 
     saveFile(data_path, text)
     return positive_dict   
     
 def summaryGenerator(paper_dict, positive_dict, reviewDict,
-                      num_reviews_per_paper, reviewer_string_index,
+                      num_reviews_per_paper,
                       summary_probability, data_path):
     prob_dict = dict()
     for i in range(2**num_reviews_per_paper):
