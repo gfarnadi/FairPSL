@@ -64,9 +64,9 @@ def fairMapInference(rules, hard_rules, counts):
         constraints_hard = []
         
     f_fair = 0
-    #f_fair = fairObjective(vid_dict, counts)
+    f_fair = fairObjective(vid_dict, counts)
     constraints_fair = []
-    constraints_fair = fairConstraints(vid_dict, counts)
+    #constraints_fair = fairConstraints(vid_dict, counts)
     
     f=f_soft+f_hard+f_fair
     constraints= constraints_soft+ constraints_hard + constraints_fair

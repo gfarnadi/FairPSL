@@ -1,7 +1,9 @@
 import cvxpy
 
-epsilon = 0.001
-gamma = 10000
+epsilon = 0.1
+gamma = 100
+
+
 def calculate(counts,vid_dict):
     n1 = 0.0
     n2 = 0.0
@@ -16,9 +18,6 @@ def calculate(counts,vid_dict):
             a+= max(f1f2 + d[1] -1,0)
             c+= max(f1nf2 + d[1] -1,0)
         else:
-            '''TODO: This should be fixed and calculation of a and c should be based on max functions!'''
-            #a+= cvxpy.pos(f1f2 + vid_dict[d[1]] -1)
-            #c+= cvxpy.pos(f1nf2 + vid_dict[d[1]] -1)
             if f1f2==1:
                 a+= vid_dict[d[1]] 
             else:
