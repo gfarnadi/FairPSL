@@ -20,12 +20,22 @@ def fairGrounding(dataPath):
     var_id = 0
     
     # PositiveReview
+    paper_to_reviwer = dict()
+    reviewer_to_paper = dict()
     positive_review_rel = dict()
     with open(dataPath+'positiveReview.txt') as f:
         for line in f:
             line = line.strip()
             if not line: continue
             [reviewer, paper, truth] = line.split()
+            if paper in paper_to_reviwer:
+                paper_to_reviwer[paper].append(reviewer)
+            else:
+                paper_to_reviwer[paper] = [reviewer]
+            if reviewer in reviewer_to_paper:
+                reviewer_to_paper[reviewer].append(paper)
+            else:
+                reviewer_to_paper[reviewer] = [paper]
             positive_review_rel[(reviewer, paper)] = (False, var_id)
             var_id += 1
     
@@ -65,47 +75,107 @@ def fairGrounding(dataPath):
     
     
     rules = []
-    # 5: PositiveReview(R1, P) & PositiveReview(R2, P) & R1!=R2 -> PositiveSummary(P)
+    # 1: PositiveSummary(P) & Reviews(R1,P) & Reviews(R2,P) & 
+    #     PositiveReview(R1,P) -> PositiveReview(R2,P)
     for p in papers:
-        body = [positive_review_rel[('r0', p)] + (False,),
-                positive_review_rel[('r1', p)] + (False,)]
-        head = [positive_summary_rel[p] + (False,)]
-        rules.append((1, body, head))
-    
-    
-    # 5: !PositiveReview(R1,P) & !PositiveReview(R2, P) & A1!=A2 -> !PositiveSummary(P)
+        for r1 in paper_to_reviwer[p]:
+            for r2 in paper_to_reviwer[p]:
+                body = [positive_summary_rel[p] + (False,),
+                        positive_review_rel[(r1, p)] + (False,)]
+                head = [positive_review_rel[(r2, p)] + (False,)]
+                rules.append((1, body, head))
+
+    # 1: !PositiveSummary(P) & Reviews(R1,P) & Reviews(R2,P) & 
+    #      PositiveReview(R1,P) -> !PositiveReview(R2,P)
     for p in papers:
-        body = [positive_review_rel[('r0', p)] + (True,),
-                positive_review_rel[('r1', p)] + (True,)]
-        head = [positive_summary_rel[p] + (True,)]
-        rules.append((1, body, head))
-    
-    
-    # 5: Acceptable(P) & Reviews(R, P) -> PositiveReview(R, P)
-    for r, p in positive_review_rel:
-        body = [acceptable_rel[p] + (False,), (True, 1.0, False)]
-        head= [positive_review_rel[(r, p)] + (False,)]
-        rules.append((1, body, head))
-    
-    # 5: !Acceptable(P) & Reviews(R, P) -> !PositiveReview(R, P)
-    for r, p in positive_review_rel:
-        body = [acceptable_rel[p] + (True,), (True, 1.0, False)]
-        head= [positive_review_rel[(r, p)] + (True,)]
-        rules.append((1, body, head))
-    
-    
-    # 1: !Acceptable(P)
+        for r1 in paper_to_reviwer[p]:
+            for r2 in paper_to_reviwer[p]:
+                body = [positive_summary_rel[p] + (True,),
+                        positive_review_rel[(r1, p)] + (False,)]
+                head = [positive_review_rel[(r2, p)] + (True,)]
+                rules.append((1, body, head))
+                    
+    # 1: !PositiveSummary(P) & Reviews(R1,P) & Reviews(R2,P) & 
+    #      !PositiveReview(R1,P) -> !PositiveReview(R2,P)                
+    for p in papers:
+        for r1 in paper_to_reviwer[p]:
+            for r2 in paper_to_reviwer[p]:
+                body = [positive_summary_rel[p] + (True,),
+                        positive_review_rel[(r1, p)] + (True,)]
+                head = [positive_review_rel[(r2, p)] + (True,)]
+                rules.append((1, body, head))
+
+    # 1:  PositiveSummary(P) & Reviews(R,P) -> PositiveReview(R,P)  
+    for p in papers:
+        for r in paper_to_reviwer[p]:                  
+            body = [positive_summary_rel[p] + (False, )]
+            head = [positive_review_rel[(r, p)] + (False,)]
+            rules.append((1, body, head))
+
+    # 1:  !PositiveSummary(P) & Reviews(R,P) -> !PositiveReview(R,P)            
+    for p in papers:
+        for r in paper_to_reviwer[p]:                  
+            body = [positive_summary_rel[p] + (True, )]
+            head = [positive_review_rel[(r, p)] + (True,)]
+            rules.append((1, body, head))
+                    
+    # 1: PositiveReview(R,P) & Reviews(R,P) -> Acceptable(P)
+    for p in papers:
+        for r in paper_to_reviwer[p]:                  
+            body = [positive_review_rel[(r, p)] + (False,)]
+            head = [acceptable_rel[p] + (False,)]
+            rules.append((1, body, head))
+
+    # 1: !PositiveReview(R,P) & Reviews(R,P) -> !Acceptable(P)    
+    for p in papers:
+        for r in paper_to_reviwer[p]:                  
+            body = [positive_review_rel[(r, p)] + (True,)]
+            head = [acceptable_rel[p] + (True,)]
+            rules.append((1, body, head))
+        
+    # 1:	Reviews(R,P1) & Reviews(R,P2) & PositiveReview(R,P1) & 
+    #       Acceptable(P1) & Acceptable(P2) & (P1!=P2) -> !PositiveReview(R,P1)
+    for r in reviewer_to_paper:
+        for p1 in reviewer_to_paper[r]:
+            for p2 in reviewer_to_paper[r]:
+                if p1 == p2: continue
+                body = [positive_review_rel[(r, p1)] + (False,),
+                        acceptable_rel[p1] + (False,),
+                        acceptable_rel[p2] + (False,)]
+                head = [positive_review_rel[(r, p2)] + (True,)]
+                rules.append((1, body, head))
+                
+    # 1:	Reviews(R,P1) & Reviews(R,P2) & !PositiveReview(R,P1) & 
+    #       Acceptable(P1) & Acceptable(P2) & (P1!=P2) -> PositiveReview(R,P1)            
+    for r in reviewer_to_paper:
+        for p1 in reviewer_to_paper[r]:
+            for p2 in reviewer_to_paper[r]:
+                if p1 == p2: continue
+                body = [positive_review_rel[(r, p1)] + (True,),
+                        acceptable_rel[p1] + (False,),
+                        acceptable_rel[p2] + (False,)]
+                head = [positive_review_rel[(r, p2)] + (False,)]
+                rules.append((1, body, head))    
+
+    # 1: 	!Acceptable(P)                
     for p in papers:
         body = []
         head = [acceptable_rel[p] + (True,)]
         rules.append((1, body, head))
-    
+                
     hard_rules = []
-    # inf: Acceptable(P) & Submits(A, P) -> Presents(A)
+    # Acceptable(P) & Submits(A, P) -> Presents(A)
     for a, p in submits_rel:
         body = [acceptable_rel[p] + (False,), 
                 (True, 1.0, False)]
         head = [presents_rel[a] + (False,)]
+        hard_rules.append((None, body, head))
+        
+    # !Acceptable(P) & Submits(A,P) -> !Presents(A)
+    for a, p in submits_rel:
+        body = [acceptable_rel[p] + (True,), 
+                (True, 1.0, False)]
+        head = [presents_rel[a] + (True,)]
         hard_rules.append((None, body, head))
     
     affiliation_dict = dict()
