@@ -22,6 +22,7 @@ def dataGenerator(dataPath):
     removeFolderContents(dataPath)
     ##Initial setup
     inistituteSize = 20
+    reviewerSize = 30
     numberOfReviewerPerPaper = 2
     studentProb = 0.7
     studentAcceptableProb = 0.2
@@ -42,18 +43,19 @@ def dataGenerator(dataPath):
     print ('number of submissions: '+ str(paperSize))
     authorDict = fileGenerator(paperSize, dataPath+'author.txt', authorStringIndex)
     paperDict = fileGenerator(paperSize, dataPath+'paper.txt', paperStringIndex)
+    reviewerDict = fileGenerator(reviewerSize, dataPath+'reviewer.txt', reviewerStringIndex)
     submitDict = submitGenerator(paperSize, dataPath+'submits.txt',authorStringIndex, paperStringIndex)
     affilitaionDict = affiliationGenerator(submissionDict, paperSize, n , p ,authorStringIndex, instituteStringIndex, dataPath+'affiliation.txt' )
     ###
     print('generate simple relations')
     studentDict = studentGenerator(paperSize,studentProb,authorStringIndex, dataPath+'student.txt')
-    reviewDict = reviewerGenerator(paperSize, numberOfReviewerPerPaper,reviewerStringIndex, paperStringIndex, dataPath+'reviews.txt')
+    reviewDict = reviewerGenerator(paperSize, reviewerSize, numberOfReviewerPerPaper,reviewerStringIndex, paperStringIndex, dataPath+'reviews.txt')
     acceptableDict = acceptableGenerator(paperSize,studentProb, studentAcceptableProb, nonStudentAcceptableProb, paperStringIndex, dataPath+'acceptable.txt')
     highRankDict = highRankInstituteGenerator(inistituteSize, highRankProb, instituteStringIndex, dataPath+'highRank.txt')
     ###
     print('generate complex relations')
-    positiveDict = positiveReviewGenerator(paperDict,submitDict,affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
-    summaryGenerator(paperDict, positiveDict, numberOfReviewerPerPaper, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
+    positiveDict = positiveReviewGenerator(paperDict,submitDict,reviewDict, affilitaionDict, highRankDict, studentDict, acceptableDict, reviewProbability, numberOfReviewerPerPaper, reviewerStringIndex, dataPath+'positiveReview.txt')
+    summaryGenerator(paperDict, positiveDict, reviewDict, numberOfReviewerPerPaper, reviewerStringIndex, summaryProbability, dataPath+'positiveSummary.txt')
 
 def instituteSubmission(inistitueDict, n , p ):
     submissionDict = {}
@@ -125,15 +127,21 @@ def studentGenerator(authorSize,studentProb,authorStringIndex, dataPath):
     return studentDict  
    
        
-def reviewerGenerator(authorSize, numberOfReviewerPerPaper,reviewerStringIndex, paperStringIndex, dataPath):    
+def reviewerGenerator(authorSize, reviewerSize, numberOfReviewerPerPaper,reviewerStringIndex, paperStringIndex, dataPath):    
     reviewDict = {}   
     index = 0
     reviewerText = ''
     while index<authorSize:
         r=0
         while r<numberOfReviewerPerPaper:
-            reviewerText+=reviewerStringIndex+str(r)+'\t'+paperStringIndex+ str(index)+'\t'+'1.0'+'\n' 
-            reviewDict[reviewerStringIndex+str(r)+paperStringIndex+ str(index)] = 1.0
+            reviewerId = random.randint(0, reviewerSize-1)
+            reviewerText+=reviewerStringIndex+str(reviewerId)+'\t'+paperStringIndex+ str(index)+'\t'+'1.0'+'\n' 
+            if paperStringIndex+ str(index) in reviewDict:
+                reviewers = reviewDict[paperStringIndex+ str(index)]
+            else:
+                reviewers = []
+            reviewers.append(reviewerStringIndex+str(reviewerId))
+            reviewDict[paperStringIndex+ str(index)] = reviewers
             r+=1
         index+=1
     saveFile(dataPath, reviewerText)
@@ -205,7 +213,7 @@ def __num2bits(n, nbits):
     return tuple(bits)
 
     
-def positiveReviewGenerator(paper_dict, submit_dict,
+def positiveReviewGenerator(paper_dict, submit_dict, reviewDict,
                               affiliation_dict, high_rank_dict,
                               student_dict, acceptable_dict,
                               review_probability, num_reviews_per_paper,
@@ -223,9 +231,8 @@ def positiveReviewGenerator(paper_dict, submit_dict,
         is_student = bool(student_dict[author])
         is_acceptable = bool(acceptable_dict[paper])
         prob_key = (is_acceptable, is_high_rank, is_student)
-        
-        for reviewer in range(num_reviews_per_paper):
-            key = reviewer_string_index + str(reviewer) + paper
+        for reviewer in reviewDict[paper]:
+            key = reviewer + paper
             random_number = random.random()
             if random_number  < prob_dict[prob_key]:
                 positive_dict[key] = 1.0
@@ -237,7 +244,7 @@ def positiveReviewGenerator(paper_dict, submit_dict,
     saveFile(data_path, text)
     return positive_dict   
     
-def summaryGenerator(paper_dict, positive_dict, 
+def summaryGenerator(paper_dict, positive_dict, reviewDict,
                       num_reviews_per_paper, reviewer_string_index,
                       summary_probability, data_path):
     prob_dict = dict()
@@ -247,8 +254,8 @@ def summaryGenerator(paper_dict, positive_dict,
     text = ''
     for paper in paper_dict:
         key = []
-        for reviewer in range(num_reviews_per_paper):
-            review_key = reviewer_string_index + str(reviewer) + paper
+        for reviewer in reviewDict[paper]:
+            review_key = reviewer + paper
             review = bool(positive_dict[review_key])
             key.append(review)
             
