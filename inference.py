@@ -59,8 +59,7 @@ def fairMapInference(rules, hard_rules, counts):
     if len(hard_rules) > 0:
         hard_constraints = psl_hard_constraints(vid_dict, hard_rules)
         
-    fairness_constraints = []
-    #constraints_fair = fairConstraints(vid_dict, counts)
+    fairness_constraints = fairConstraints(vid_dict, counts)
     
     constraints= bounds + hard_constraints + fairness_constraints
     
