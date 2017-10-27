@@ -3,6 +3,7 @@
 
 from os.path import join as ojoin
 import numpy as np
+import sys
 
 def read_accept(path):
     outdict = dict()
@@ -68,6 +69,9 @@ def compare(cli_out, py_out):
     compare_dicts(cli_rev, py_rev)
 
 if __name__ == '__main__':
-    cli_out = './output'
-    py_out = './pypsl_output'
-    compare(cli_out, py_out)
+    outputs = dict(cli='./output', cvx='./pypsl_output', mip='./mip_output')
+    if len(sys.argv) < 3:
+        print('usage: %s [cli|cvx|mip] [cli|cvx|mip]'%sys.argv[0])
+        exit(1)
+        
+    compare(outputs[sys.argv[1]], outputs[sys.argv[2]])
