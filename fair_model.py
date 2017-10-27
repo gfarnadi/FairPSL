@@ -4,7 +4,7 @@ from fair_evaluation import evaluate
 
 
 def runModel(dataPath):
-    rules, hard_rules, counts = fairGrounding(dataPath)
+    rules, hard_rules, counts, _ = fairGrounding(dataPath)
     results = mapInference(rules, hard_rules)
     print (results)
     print(evaluate(results, counts))

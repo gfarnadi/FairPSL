@@ -27,15 +27,13 @@ def mapInference(rules, hard_rules):
             var_ids |= set([h[1] for h in head if not h[0]])  
         
 
-    f_soft, constraints_soft = pslObjective(var_ids, vid_dict, rules) 
-    if (len(hard_rules)>0):
-        f_hard, constraints_hard = pslHardObjective(var_ids, vid_dict, hard_rules)
-    else:
-        f_hard = 0
-        constraints_hard = []
+    f, bounds = pslObjective(var_ids, vid_dict, rules) 
+
+    hard_constraints = []
+    if len(hard_rules) > 0:
+        hard_constraints = psl_hard_constraints(vid_dict, hard_rules)
         
-    f=f_soft+f_hard
-    constraints= constraints_soft+ constraints_hard
+    constraints = bounds + hard_constraints
     objective = cvxpy.Minimize(f)
     problem = cvxpy.Problem(objective, constraints)
     problem.solve()
@@ -56,20 +54,15 @@ def fairMapInference(rules, hard_rules, counts):
         var_ids |= set([h[1] for h in head if not h[0]])  
         
 
-    f_soft, constraints_soft = pslObjective(var_ids, vid_dict, rules) 
-    if (len(hard_rules)>0):
-        f_hard, constraints_hard = pslHardObjective(var_ids, vid_dict, hard_rules)
-    else:
-        f_hard = 0
-        constraints_hard = []
+    f, bounds = pslObjective(var_ids, vid_dict, rules) 
+    hard_constraints = []
+    if len(hard_rules) > 0:
+        hard_constraints = psl_hard_constraints(vid_dict, hard_rules)
         
-    f_fair = 0
-    f_fair = fairObjective(vid_dict, counts)
-    constraints_fair = []
+    fairness_constraints = []
     #constraints_fair = fairConstraints(vid_dict, counts)
     
-    f=f_soft+f_hard+f_fair
-    constraints= constraints_soft+ constraints_hard + constraints_fair
+    constraints= bounds + hard_constraints + fairness_constraints
     
     objective = cvxpy.Minimize(f)
     problem = cvxpy.Problem(objective, constraints)
@@ -122,19 +115,14 @@ def pslObjective(var_ids, vid_dict, r_list):
             else:
                 expr -= y
         f += weight * cvxpy.pos(expr)
+        
     return f, constraints
 
 
-def pslHardObjective(var_ids, vid_dict, r_list):
+def psl_hard_constraints(vid_dict, r_list):
     constraints = []
     
-    for vid in var_ids:
-        var = cvxpy.Variable()
-        vid_dict[vid] = var
-        constraints += [0 <= var, var <= 1]
-
-    f = 0        
-    for weight, body, head in r_list:
+    for _, body, head in r_list:
         expr = 1
         for b in body:
             if b[0]:
@@ -155,5 +143,5 @@ def pslHardObjective(var_ids, vid_dict, r_list):
             else:
                 expr -= y
 
-        constraints.append(expr>0)
-    return f, constraints
+        constraints.append(expr <= 0)
+    return constraints
