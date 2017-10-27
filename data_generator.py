@@ -43,6 +43,7 @@ def dataGenerator(dataPath):
     print ('number of submissions: '+ str(paperSize))
     authorDict = fileGenerator(paperSize, dataPath+'author.txt', authorStringIndex)
     paperDict = fileGenerator(paperSize, dataPath+'paper.txt', paperStringIndex)
+    presentDict = fileGenerator(paperSize, dataPath+'presents.txt', authorStringIndex)
     reviewerDict = fileGenerator(reviewerSize, dataPath+'reviewer.txt', reviewerStringIndex)
     submitDict = submitGenerator(paperSize, dataPath+'submits.txt',authorStringIndex, paperStringIndex)
     affilitaionDict = affiliationGenerator(submissionDict, paperSize, n , p ,authorStringIndex, instituteStringIndex, dataPath+'affiliation.txt' )
