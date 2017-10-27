@@ -9,3 +9,4 @@
 	!Acceptable(P) & Submits(A,P) -> !Presents(A) .
 20:	Reviews(R,P1) & Reviews(R,P2) & PositiveReview(R,P1) & Acceptable(P1) & Acceptable(P2) & (P1!=P2) -> !PositiveReview(R,P1)
 20:	Reviews(R,P1) & Reviews(R,P2) & !PositiveReview(R,P1) & Acceptable(P1) & Acceptable(P2) & (P1!=P2) -> PositiveReview(R,P1)
+
