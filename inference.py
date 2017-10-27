@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import cvxpy
-from fair_measure import riskDifference,riskRatio,riskChance
+from fair_measure import riskDifferenceConstraints,riskRatioConstraints,riskChanceConstraints,riskDifferenceObjective,riskRatioObjective,riskChanceObjective
 '''
  - *r_list* is a list of tuples (weight, body, head)
  - *body* and *head* are lists of tuples (is_constant, value/id, is_negated)
@@ -63,9 +63,13 @@ def fairMapInference(rules, hard_rules, counts):
         f_hard = 0
         constraints_hard = []
         
-    f_fair = fairObjective(vid_dict, counts)
+    f_fair = 0
+    #f_fair = fairObjective(vid_dict, counts)
+    constraints_fair = []
+    constraints_fair = fairConstraints(vid_dict, counts)
+    
     f=f_soft+f_hard+f_fair
-    constraints= constraints_soft+ constraints_hard 
+    constraints= constraints_soft+ constraints_hard + constraints_fair
     
     objective = cvxpy.Minimize(f)
     problem = cvxpy.Problem(objective, constraints)
@@ -78,9 +82,15 @@ def fairMapInference(rules, hard_rules, counts):
 
 
 def fairObjective(vid_dict, counts):
-    #return riskDifference(counts,vid_dict)
-    #return riskRatio(counts,vid_dict)
-    return riskChance(counts,vid_dict)      
+    #return riskDifferenceObjective(counts,vid_dict)
+    #return riskRatioObjective(counts,vid_dict)
+    return riskChanceObjective(counts,vid_dict)    
+
+
+def fairConstraints(vid_dict, counts):
+    #return riskDifferenceConstraints(counts,vid_dict)
+    #return riskRatioConstraints(counts,vid_dict)
+    return riskChanceConstraints(counts,vid_dict)    
 
 def pslObjective(var_ids, vid_dict, r_list):
     constraints = []
