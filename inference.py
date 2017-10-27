@@ -29,7 +29,7 @@ def mapInference(rules, hard_rules):
 
     f_soft, constraints_soft = pslObjective(var_ids, vid_dict, rules) 
     if (len(hard_rules)>0):
-        f_hard, constraints_hard = pslObjective(var_ids, vid_dict, hard_rules)
+        f_hard, constraints_hard = pslHardObjective(var_ids, vid_dict, hard_rules)
     else:
         f_hard = 0
         constraints_hard = []
@@ -121,16 +121,11 @@ def pslObjective(var_ids, vid_dict, r_list):
                 expr -= (1-y)
             else:
                 expr -= y
-        if weight == None: 
-            f += hardWeight * cvxpy.pos(expr)
-        else:      
-            # pos(x) is equivalent to max{x, 0}
-            f += weight * cvxpy.pos(expr)
+        f += weight * cvxpy.pos(expr)
     return f, constraints
 
 
 def pslHardObjective(var_ids, vid_dict, r_list):
-    '''TODO: this should be fixed and hard rules should be added as hard constraints'''
     constraints = []
     
     for vid in var_ids:
@@ -159,9 +154,6 @@ def pslHardObjective(var_ids, vid_dict, r_list):
                 expr -= (1-y)
             else:
                 expr -= y
-        if weight == None: 
-            f += hardWeight * cvxpy.pos(expr)
-        else:      
-            # pos(x) is equivalent to max{x, 0}
-            f += weight * cvxpy.pos(expr)
+
+        constraints.append(expr>0)
     return f, constraints
