@@ -135,12 +135,14 @@ def reviewerGenerator(authorSize, reviewerSize, numberOfReviewerPerPaper,reviewe
         r=0
         while r<numberOfReviewerPerPaper:
             reviewerId = random.randint(0, reviewerSize-1)
-            reviewerText+=reviewerStringIndex+str(reviewerId)+'\t'+paperStringIndex+ str(index)+'\t'+'1.0'+'\n' 
             if paperStringIndex+ str(index) in reviewDict:
                 reviewers = reviewDict[paperStringIndex+ str(index)]
+                while reviewers[0] == reviewerStringIndex+str(reviewerId):
+                    reviewerId = random.randint(0, reviewerSize-1)
             else:
                 reviewers = []
             reviewers.append(reviewerStringIndex+str(reviewerId))
+            reviewerText+=reviewerStringIndex+str(reviewerId)+'\t'+paperStringIndex+ str(index)+'\t'+'1.0'+'\n' 
             reviewDict[paperStringIndex+ str(index)] = reviewers
             r+=1
         index+=1
