@@ -28,25 +28,27 @@ def runExperiment(dataPath, resultPath):
         for code in fairMeasureCodes:
             print(code)
             results = mapInference(rules, hard_rules)
-            if code =='accuracy':
-                score = accuracy(dataPath+str(i)+'/', results, atoms)
-            else:
-                score = evaluate(results, counts,code)
+            accuracyScore = accuracy(dataPath+str(i)+'/', results, atoms)
+            score = evaluate(results, counts,code)
             
             text+='----------'+code+'---------------'+'\n'
             text+='----------PSL--------------'+'\n'
+            line = ''
             for epsilon in epsilons:
                 text+=str(score)+'\t'
-            text+='\n'+'----------FairPSL----------'+'\n'
+                line+=str(accuracyScore)+'\t'
+            
+            text+='\n'+line+'\'+----------FairPSL----------'+'\n'
+            line = ''
             for epsilon in epsilons:
                 print(epsilon)
                 results = fairMapInference(rules, hard_rules, counts, epsilon,code)
-                if code =='accuracy':
-                    score = accuracy(dataPath+str(i)+'/', results, atoms)
-                else:
-                    score = evaluate(results, counts,code)
+                accuracyScore = accuracy(dataPath+str(i)+'/', results, atoms)
+                line+=str(accuracyScore)+'\t'
+                score = evaluate(results, counts,code)
                 text+=str(score)+'\t'
             text+='\n'
+            text+=line+'\n'
         text+='---------------------------'+'\n'
         text+='---------------------------'+'\n'
         i+=1  

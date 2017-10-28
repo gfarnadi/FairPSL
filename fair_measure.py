@@ -1,6 +1,5 @@
 import cvxpy
 
-epsilon = 0.1
 gamma = 100
 
 
@@ -28,21 +27,21 @@ def calculate(counts,vid_dict):
                 c+=0
     return a,c,n1,n2
 
-def riskDifferenceObjective(counts,vid_dict):
+def riskDifferenceObjective(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     return gamma* cvxpy.pos(((n2/(n1*n2)*a-n1/(n1*n2)*c)))+cvxpy.pos(-((n2/(n1*n2)*a-n1/(n1*n2)*c)))
 
-def riskRatioObjective(counts,vid_dict):
+def riskRatioObjective(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     return gamma* cvxpy.pos(n2*a-(1+epsilon)*c*n1) + cvxpy.pos((1-epsilon)*c*n1-n2*a)
 
-def riskChanceObjective(counts,vid_dict):
+def riskChanceObjective(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     return gamma* cvxpy.pos(n1*n2-n2*a - (1+epsilon)*(n1*n2-n1*c)) + cvxpy.pos(((1-epsilon)*(n1*n2 -n1*c)+ n2*a-n1*n2))
 
 
 
-def riskDifferenceConstraints(counts,vid_dict):
+def riskDifferenceConstraints(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
     constraints.append(((n2/(n1*n2)*a - n1/(n1*n2)*c))>0)
@@ -51,7 +50,7 @@ def riskDifferenceConstraints(counts,vid_dict):
 
 
 
-def riskRatioConstraints(counts,vid_dict):
+def riskRatioConstraints(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
     constraints.append((1-epsilon)*(n1*c)- n2*a>0)
@@ -60,7 +59,7 @@ def riskRatioConstraints(counts,vid_dict):
     
     
     
-def riskChanceConstraints(counts,vid_dict):
+def riskChanceConstraints(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
     constraints.append((1+epsilon)*(n1*n2-n1*c)-(n1*n2-n2*a)>0)

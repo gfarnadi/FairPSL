@@ -49,15 +49,15 @@ def accuracy(dataPath, result, atoms):
     vardic = atoms['acceptable']
     score = 0.0
     for paper in papers:
-        var = vardic[paper][1]
+        var = vardic[paper][0]
         if var in result:
             predict = result[var]
-            truth = vardic[var]
+            truth = vardic[paper][1]
             if round(predict, 1)>0.5:
                 if truth ==1.0:
                     score+=1.0
             else:
                 if truth ==0.0:
                     score+=1.0
-    score = float(score) / float(len(papers))
+    score = (float(score) / float(len(papers)))
     return score

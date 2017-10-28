@@ -23,6 +23,7 @@ def fairGrounding(dataPath):
     paper_to_reviwer = dict()
     reviewer_to_paper = dict()
     positive_review_rel = dict()
+    positive_review_truth = dict()
     with open(dataPath+'positiveReview.txt') as f:
         for line in f:
             line = line.strip()
@@ -37,6 +38,7 @@ def fairGrounding(dataPath):
             else:
                 reviewer_to_paper[reviewer] = [paper]
             positive_review_rel[(reviewer, paper)] = (False, var_id)
+            positive_review_truth[(reviewer, paper)] = (var_id,truth )
             var_id += 1
     
     # PositiveSummary
@@ -50,12 +52,14 @@ def fairGrounding(dataPath):
             
     # Acceptable
     acceptable_rel = dict()
+    acceptable_truth = dict()
     with open(dataPath+'acceptable.txt') as f:
         for line in f:
             line = line.strip()
             if not line: continue
             [paper, truth] = line.split()
             acceptable_rel[paper] = (False, var_id)
+            acceptable_truth[paper] = (var_id, truth)
             var_id += 1
     
     # Submits
@@ -213,9 +217,8 @@ def fairGrounding(dataPath):
         counts.append((F1, F2, d))  
     
     atoms = {}
-    atoms['review']   =  positive_review_rel
-    atoms['acceptable']   =  acceptable_rel
-    atoms['presents']   =  presents_rel
+    atoms['review']   =  positive_review_truth
+    atoms['acceptable']   =  acceptable_truth
     #atoms = dict(review=positive_review_rel,acceptable=acceptable_rel, presents=presents_rel)
     
     return rules, hard_rules, counts, atoms
