@@ -20,6 +20,8 @@ def removeFolderContents(folderPath):
     
 def dataGenerator(dataPath):
     removeFolderContents(dataPath)
+    x1 = 0.5
+    x2 = 0.9
     ##Initial setup
     inistituteSize = 20
     reviewerSize = 30
@@ -30,7 +32,7 @@ def dataGenerator(dataPath):
     highRankProb = 0.5
     n = 10
     p = 0.5
-    reviewProbability = [0.15,0.05,0.20,0.15,0.85,0.30,0.85,0.70]
+    reviewProbability = [0.15,0.05,0.20,0.15,0.85,x1,0.85,x2]
     summaryProbability = [0.0,0.20,0.20,0.90]
     authorStringIndex = 'a'
     paperStringIndex = 'p'
@@ -269,7 +271,7 @@ def summaryGenerator(paper_dict, positive_dict, reviewDict,
     saveFile(data_path, text)
  
            
-dataPath = './reviewData/'            
+dataPath = './reviewData3/'            
 dataGenerator(dataPath)   
 
  

@@ -44,7 +44,7 @@ def mapInference(rules, hard_rules):
     return results
 
 
-def fairMapInference(rules, hard_rules, counts):
+def fairMapInference(rules, hard_rules, counts,epsilon,fairMeasureCode):
     vid_dict = dict()
     var_ids = set()
     
@@ -59,7 +59,7 @@ def fairMapInference(rules, hard_rules, counts):
     if len(hard_rules) > 0:
         hard_constraints = psl_hard_constraints(vid_dict, hard_rules)
         
-    fairness_constraints = fairConstraints(vid_dict, counts)
+    fairness_constraints = fairConstraints(vid_dict, counts,epsilon,fairMeasureCode)
     
     constraints= bounds + hard_constraints + fairness_constraints
     
@@ -73,17 +73,28 @@ def fairMapInference(rules, hard_rules, counts):
     return results
 
 
-def fairObjective(vid_dict, counts):
-    #return riskDifferenceObjective(counts,vid_dict)
-    #return riskRatioObjective(counts,vid_dict)
-    return riskChanceObjective(counts,vid_dict)    
+def fairObjective(vid_dict, counts,epsilon,fairMeasureCode):
+    if fairMeasureCode=='RD':
+        return riskDifferenceObjective(counts,vid_dict,epsilon)
+    elif fairMeasureCode=='RR':
+        return riskRatioObjective(counts,vid_dict,epsilon)
+    elif fairMeasureCode=='RC':
+        return riskChanceObjective(counts,vid_dict,epsilon)   
+    else:
+        print('Error: fairMeasureCode is not correct, you need to choose between RD, RR and RC.')
 
 
-def fairConstraints(vid_dict, counts):
-    #return riskDifferenceConstraints(counts,vid_dict)
-    #return riskRatioConstraints(counts,vid_dict)
-    return riskChanceConstraints(counts,vid_dict)    
+def fairConstraints(vid_dict, counts,epsilon,fairMeasureCode):
+    if fairMeasureCode=='RD':
+        return riskDifferenceConstraints(counts,vid_dict,epsilon)
+    elif fairMeasureCode=='RR':
+        return riskRatioConstraints(counts,vid_dict,epsilon)
+    elif fairMeasureCode=='RC':
+        return riskChanceConstraints(counts,vid_dict,epsilon)    
+    else:
+        print('Error: fairMeasureCode is not correct, you need to choose between RD, RR and RC.') 
 
+    
 def pslObjective(var_ids, vid_dict, r_list):
     constraints = []
     

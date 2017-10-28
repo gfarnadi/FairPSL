@@ -211,10 +211,12 @@ def fairGrounding(dataPath):
         F2 = high_rank_rel[affiliation_dict[a]]
         d = presents_rel[a]
         counts.append((F1, F2, d))  
-        
-    atoms = dict(review=positive_review_rel,
-                 acceptable=acceptable_rel,
-                 presents=presents_rel)
+    
+    atoms = {}
+    atoms['review']   =  positive_review_rel
+    atoms['acceptable']   =  acceptable_rel
+    atoms['presents']   =  presents_rel
+    #atoms = dict(review=positive_review_rel,acceptable=acceptable_rel, presents=presents_rel)
     
     return rules, hard_rules, counts, atoms
 
