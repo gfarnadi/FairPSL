@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import cvxpy
 from fair_measure import riskDifferenceConstraints,riskRatioConstraints,riskChanceConstraints,riskDifferenceObjective,riskRatioObjective,riskChanceObjective
+
 '''
  - *r_list* is a list of tuples (weight, body, head)
  - *body* and *head* are lists of tuples (is_constant, value/id, is_negated)

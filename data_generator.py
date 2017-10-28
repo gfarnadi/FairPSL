@@ -270,10 +270,10 @@ def summaryGenerator(paper_dict, positive_dict, reviewDict,
         text += paper + '\t' + str(summary) + '\n'
     saveFile(data_path, text)
  
-           
+'''           
 dataPath = './reviewData3/'            
 dataGenerator(dataPath)   
-
+'''
  
 
 
