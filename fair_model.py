@@ -1,6 +1,6 @@
 from fair_grounding import fairGrounding
 from inference import mapInference, fairMapInference
-from fair_evaluation import evaluate
+from fair_evaluation import evaluate, accuracy
 from data_generator import saveFile
 
 def runModel(dataPath,epsilon,fairMeasureCode):
