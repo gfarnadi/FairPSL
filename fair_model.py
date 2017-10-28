@@ -16,7 +16,7 @@ def runModel(dataPath,epsilon,fairMeasureCode):
 
 def runExperiment(dataPath, resultPath):
     epsilons = [0.001,0.005, 0.01, 0.05, 0.1,0.5]
-    fairMeasureCodes = ['RD', 'RR', 'RC', 'accuracy']
+    fairMeasureCodes = ['RD', 'RR', 'RC']
     i=1
     text = ''
     while i<=3:
