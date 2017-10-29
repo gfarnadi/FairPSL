@@ -28,8 +28,8 @@ def calculate(counts,result):
 
 def evaluate(result, counts, fairMeasureCode):
     p1,p2 = calculate(counts,result)
-    RR = p1-p2
-    RD = p1/p2
+    RR = p1/p2
+    RD = p1-p2
     RC = (1-p1)/(1-p2)
     if fairMeasureCode=='RR':
         return RR
