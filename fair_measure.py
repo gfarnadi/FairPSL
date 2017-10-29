@@ -44,8 +44,8 @@ def riskChanceObjective(counts,vid_dict,epsilon):
 def riskDifferenceConstraints(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
-    constraints.append(((n2/(n1*n2)*a - n1/(n1*n2)*c))>0)
-    constraints.append(((n2/(n1*n2)*a - n1/(n1*n2)*c))<0)
+    constraints.append((n2*a-n1*c - n1*n2*epsilon) <=0)
+    constraints.append((n2*a-n1*c + n1*n2*epsilon) >=0)
     return constraints
 
 
@@ -53,8 +53,8 @@ def riskDifferenceConstraints(counts,vid_dict,epsilon):
 def riskRatioConstraints(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
-    constraints.append((1-epsilon)*(n1*c)- n2*a>0)
-    constraints.append((1+epsilon)*(n1*c)- n2*a <0)
+    constraints.append(n2*a - (1+epsilon)*(n1*c) <=0)
+    constraints.append(n2*a - (1-epsilon)*(n1*c) >=0)
     return constraints
     
     
@@ -62,8 +62,8 @@ def riskRatioConstraints(counts,vid_dict,epsilon):
 def riskChanceConstraints(counts,vid_dict,epsilon):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
-    constraints.append((1+epsilon)*(n1*n2-n1*c)-(n1*n2-n2*a)>0)
-    constraints.append((1-epsilon)*(n1*n2-n1*c)-(n1*n2-n2*a)<0)
+    constraints.append(-n2*a+ (1+epsilon)*n1*c - epsilon*n1*n2 <=0)
+    constraints.append(-n2*a+ (1-epsilon)*n1*c + epsilon*n1*n2 >=0)
     return constraints
     
     
