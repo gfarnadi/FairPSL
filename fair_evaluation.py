@@ -10,15 +10,15 @@ def calculate(counts,result):
         n1 += f1f2
         n2 += f1nf2
         if d[0]:
-            a+= max(f1f2 + d[1] -1,0)
-            c+= max(f1nf2 + d[1] -1,0)
+            a+= max(f1f2 - d[1],0)
+            c+= max(f1nf2 - d[1],0)
         else:
             if f1f2==1:
-                a+= result[d[1]] 
+                a+= 1-result[d[1]] 
             else:
                 a+= 0
             if f1nf2==1:
-                c+= f1nf2 + result[d[1]] -1
+                c+= 1-result[d[1]]
             else:
                 c+=0
         
