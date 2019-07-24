@@ -1,0 +1,4 @@
+UCSC	1
+ZU	0
+Stanford	1
+DPU	0

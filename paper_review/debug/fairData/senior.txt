@@ -1,0 +1,12 @@
+Alice	1
+Bob	0
+Jack	1
+John	0
+James	1
+Carol	1
+Ted	0
+Joe	0
+Sarah	1
+Ben	0
+Ada	1
+

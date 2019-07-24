@@ -1,0 +1,13 @@
+1: PositiveSummary(P) & Reviews(R1,P) & Reviews(R2,P) & PositiveReview(R1,P) -> PositiveReview(R2,P)
+1: !PositiveSummary(P) & Reviews(R1,P) & Reviews(R2,P) & PositiveReview(R1,P) -> !PositiveReview(R2,P)
+1: !PositiveSummary(P) & Reviews(R1,P) & Reviews(R2,P) & !PositiveReview(R1,P) -> !PositiveReview(R2,P)
+1:  PositiveSummary(P) & Reviews(R,P) -> PositiveReview(R,P)
+1:  !PositiveSummary(P) & Reviews(R,P) -> !PositiveReview(R,P)
+1: PositiveReview(R,P) & Reviews(R,P) -> Acceptable(P)
+1: !PositiveReview(R,P) & Reviews(R,P) -> !Acceptable(P)
+1:	Reviews(R,P1) & Reviews(R,P2) & PositiveReview(R,P1) & Acceptable(P1) & Acceptable(P2) & (P1!=P2) -> !PositiveReview(R,P1)
+1:	Reviews(R,P1) & Reviews(R,P2) & !PositiveReview(R,P1) & Acceptable(P1) & Acceptable(P2) & (P1!=P2) -> PositiveReview(R,P1)
+1: 	!Acceptable(P)
+	Acceptable(P) & Submits(A,P) -> Presents(A) .
+	!Acceptable(P) & Submits(A,P) -> !Presents(A) .
+
