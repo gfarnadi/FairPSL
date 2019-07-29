@@ -163,16 +163,19 @@ def generate_submission(user_file, manager_file, quality_file, feedback_file, su
 def generate_performance(quality_dict, performance_rate_p, performance_rate_n, performance_file):
     with open(performance_file, 'w') as pf:
         for user,quality in quality_dict.items():
-            if quality_dict[user] == 1:
-                if random.random<performance_rate_p:
+            if quality_dict[user]==1:
+                if random.random()<performance_rate_p:
                     print('%s\t%d'%(user,1), file =pf)
                 else:
                     print('%s\t%d'%(user,0), file =pf)
+                    
             else:
-                if random.random<performance_rate_n:
+                if random.random()<performance_rate_n:
                     print('%s\t%d'%(user,1), file =pf)
                 else:
                     print('%s\t%d'%(user,0), file =pf)
+                    
+                
 
 
 # In[8]:
@@ -195,8 +198,8 @@ feedback_notequal_n =0.01
 submission_rate_f = 0.1
 submission_rate_m = 0.2
 quality_rate = 0.3
-performance_rate_p = 0.9
-performance_rate_n = 0.05
+performance_rate_p = 0.8
+performance_rate_n = 0.1
 quality_dict = generate_submission(user_file, manager_file, quality_file, feedback_file, submit_file, submission_rate_f, submission_rate_m, feedback_equal_p, feedback_equal_mn, feedback_notequal_mp, feedback_notequal_mn, quality_rate)
 generate_performance(quality_dict, performance_rate_p, performance_rate_n, performance_file)
 
