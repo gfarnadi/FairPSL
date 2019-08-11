@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[29]:
+# In[1]:
 
 
-def fairGrounding(dataPath, data_folder):
+def fairGrounding(dataPath):
     ######################### Loading Data ######################### 
     ##Here (,) -> if the atom is observed => (True,) otherwise (False,)
     # employees --> Observed
@@ -37,6 +37,7 @@ def fairGrounding(dataPath, data_folder):
     # Manager --> Observed
     manager_to_employee = dict()
     employee_to_manager = dict()
+    manager = dict()
     with open(dataPath+'manager.txt') as f:
         for line in f:
             line = line.strip()
@@ -44,6 +45,7 @@ def fairGrounding(dataPath, data_folder):
             [supervisor, employee] = line.split()
             manager_to_employee.setdefault(supervisor,[]).append(employee)
             employee_to_manager.setdefault(employee,[]).append(supervisor)
+            manager[(supervisor, employee)] = 1
            
     # Ingroup --> Observed
     ingroup = dict()
@@ -87,29 +89,27 @@ def fairGrounding(dataPath, data_folder):
             line = line.strip()
             if not line: continue
             [employee, truth] = line.split()
-            true_quality_truth[(employee)] = (var_id, truth)
-            true_quality_rel[(employee)] = (False, var_id)
+            true_quality_truth[employee] = (var_id, float(truth))
+            true_quality_rel[employee] = (False, var_id)
             var_id += 1
               
     # Promotion -> target (inference task)
     promotion_rel = dict()
     promotion_truth = dict()
-    for e in employees:
-        promotion_rel[e] = (False, var_id)
-        var_id += 1
-
     with open(dataPath+'promotion.txt') as f:
         for line in f:
             line = line.strip()
             if not line: continue
             [employee, truth] = line.split()
-            promotion_truth[employee] = float(truth)  
+            promotion_truth[employee] = (var_id, float(truth))  
+            promotion_rel[employee] = (False, var_id)
+            var_id += 1
         
     ######################### Grounding the model #########################  
     ##Here (,) -> if the atom is negated => (True,) otherwise (False,)
     ##And (,,) -> the first one is weight of the rule, and the second is the body and the third is the head of the rule
     rules = []
-    hardrules = []
+    hard_rules = []
     
     # 1: True_Quality(e) -> Performance(e)
     for e in employees:
@@ -127,18 +127,20 @@ def fairGrounding(dataPath, data_folder):
     for e1 in employees:
         for e2 in employees:
             if e1==e2: continue
-            body = [submit_rel[(e1,e2)]+(False,)]
-            head = [opinion_rel[(e1,e2)] + (False,)]
-            hardrules.append((None, body, head))
+            if (e1,e2) in submit_rel.keys():
+                body = [submit_rel[(e1,e2)]+(False,)]
+                head = [opinion_rel[(e1,e2)] + (False,)]
+                hard_rules.append((None, body, head))
 
                 
     # \infty : ~Submit(e1,e2)-> ~Opinion(e1,e2)                  
     for e1 in employees:
         for e2 in employees:
             if e1==e2: continue
-            body = [submit_rel[(e1,e2)]+(True,)]
-            head = [opinion_rel[(e1,e2)] + (True,)]
-            hardrules.append((None, body, head))
+            if (e1,e2) in submit_rel.keys():
+                body = [submit_rel[(e1,e2)]+(True,)]
+                head = [opinion_rel[(e1,e2)] + (True,)]
+                hard_rules.append((None, body, head))
            
     # 1: Quality(e1)  & Employee(e1) & Employee(e2) -> Opinion(e1,e2) 
     for e1 in employees:
@@ -161,7 +163,7 @@ def fairGrounding(dataPath, data_folder):
     for m, emp in manager_to_employee.items():
         for e1 in emp:
             for e2 in employees:
-                if e1==e2: continue
+                if e1==e2 or m==e2: continue
                 body = [opinion_rel[e1,e2]+ (False,)] 
                 head = [opinion_rel[(m,e2)]+ (False,)]
                 rules.append((1, body, head))
@@ -170,7 +172,7 @@ def fairGrounding(dataPath, data_folder):
     for m, emp in manager_to_employee.items():
         for e1 in emp:
             for e2 in employees:
-                if e1==e2: continue
+                if e1==e2 or m==e2: continue
                 body = [opinion_rel[e1,e2]+ (True,)] 
                 head = [opinion_rel[(m,e2)]+ (True,)]
                 rules.append((1, body, head))
@@ -192,15 +194,15 @@ def fairGrounding(dataPath, data_folder):
                 
     #\infty: Quality(e) -> Promotion(e)
     for e in employees:
-        body = [true_quality_rel(e)+ (False,)]
-        head = [promotion_rel(e) + (False,)]
-        hardrules.append((None, body, head))
+        body = [true_quality_rel[e]+ (False,)]
+        head = [promotion_rel[e] + (False,)]
+        hard_rules.append((None, body, head))
             
     #\infty: ~Quality(e) -> ~Promotion(e)
     for e in employees:
-        body = [true_quality_rel(e)+ (True,)]
-        head = [promotion_rel(e) + (True,)]
-        hardrules.append((None, body, head))
+        body = [true_quality_rel[e]+ (True,)]
+        head = [promotion_rel[e] + (True,)]
+        hard_rules.append((None, body, head))
                 
     # 1: !Promotion(P)                
     for e in employees:
@@ -214,12 +216,15 @@ def fairGrounding(dataPath, data_folder):
     # d: promotion(e)
     counts = []
     for e in employees:
-        managers_e = employee_to_manager[e]
-        for m in managers_e:
-            F1 = ingroup[(m,e)]
-            F2 = manager[(m,e)]
-            d = promotion_rel[e]
-            counts.append((F1, F2, d))  
+        F2 = 1
+        if e in employee_to_manager.keys():
+            managers_e = employee_to_manager[e]
+            for m in managers_e:
+                if ingroup[(m,e)] == 1:
+                    F2 = 0
+        d = promotion_rel[e]
+        F1 = 1
+        counts.append((F1, F2, d))  
     
     atoms = {}
     atoms['quality']   =  true_quality_truth

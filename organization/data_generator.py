@@ -4,14 +4,22 @@
 # In[1]:
 
 
+from __future__ import print_function
 import os, shutil
 import numpy 
 import random
 from random import shuffle
-from __future__ import print_function
 
 
 # In[2]:
+
+
+def saveFile(path, content):
+    with open(path, 'a') as out:
+        out.write(content + '\n')
+
+
+# In[3]:
 
 
 def generate_qualification(user_dict, quality_file, quality_rate):
@@ -27,7 +35,7 @@ def generate_qualification(user_dict, quality_file, quality_rate):
     return quality_dict
 
 
-# In[3]:
+# In[4]:
 
 
 def read_user_data(user_file):
@@ -40,7 +48,7 @@ def read_user_data(user_file):
     return user_dict
 
 
-# In[4]:
+# In[5]:
 
 
 def read_manager_data(manager_file):
@@ -58,98 +66,127 @@ def read_manager_data(manager_file):
     return manager_dict
 
 
-# In[5]:
-
-
-def generate_feedback(user_dict, quality_dict, manager_dict,feedback_equal_mp, feedback_equal_mn, feedback_notequal_mp, feedback_notequal_mn, feedback_equal_p, feedback_equal_n, feedback_notequal_p, feedback_notequal_n, feedback_file):
-    feedback_dict = {}
-    with open(feedback_file, 'w') as ff:
-        for user1,label1 in user_dict.items():
-                for user2, label2 in user_dict.items():
-                    if user1==user2:
-                        pass
-                    else:
-                        if user2 in manager_dict.keys():
-                            if user1 in manager_dict[user2]:
-                                if quality_dict[user2]==1:
-                                    if label1==label2:
-                                        if random.random()<feedback_equal_mp:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-                                    else:
-                                        if random.random()<feedback_notequal_mp:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-                                else:
-                                    if label1==label2:
-                                        if random.random()<feedback_equal_mn:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-                                    else:
-                                        if random.random()<feedback_notequal_mn:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-                            
-                            else:     
-                            
-                                if quality_dict[user2]==1:
-                                    if label1==label2:
-                                        if random.random()<feedback_equal_p:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-                                    else:
-                                        if random.random()<feedback_notequal_p:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-                                else:
-                                    if label1==label2:
-                                        if random.random()<feedback_equal_n:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-                                    else:
-                                        if random.random()<feedback_notequal_n:
-                                            print('%s\t%s\t1'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 1
-                                        else:
-                                            print('%s\t%s\t0'%(user1,user2), file =ff)
-                                            feedback_dict[(user1,user2)] = 0
-    return feedback_dict
-
-
 # In[6]:
 
 
-def generate_submission(user_file, ingroup_file, manager_file, quality_file, feedback_file, submit_file, submission_rate_A, submission_rate_B, feedback_equal_p, feedback_equal_mn, feedback_notequal_mp, feedback_notequal_mn, quality_rate):
+def generate_opinion(user_dict, quality_dict, manager_dict,opinion_equal_mp, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, opinion_equal_p, opinion_equal_n, opinion_notequal_p, opinion_notequal_n, opinion_file):
+    opinion_dict = {}
+    with open(opinion_file, 'w') as ff:
+        for user1,label1 in user_dict.items():
+            for user2, label2 in user_dict.items():
+                if user1==user2: continue
+                if user2 in manager_dict.keys():
+                    if user1 in manager_dict[user2]:
+                        if quality_dict[user2]==1:
+                            if label1==label2:
+                                if random.random()<opinion_equal_mp:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                            else:
+                                if random.random()<opinion_notequal_mp:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                        else:
+                            if label1==label2:
+                                if random.random()<opinion_equal_mn:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                            else:
+                                if random.random()<opinion_notequal_mn:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+
+                    else:     
+                        if quality_dict[user2]==1:
+                            if label1==label2:
+                                if random.random()<opinion_equal_p:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                            else:
+                                if random.random()<opinion_notequal_p:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                        else:
+                            if label1==label2:
+                                if random.random()<opinion_equal_n:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                            else:
+                                if random.random()<opinion_notequal_n:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                else:
+                    if quality_dict[user2]==1:
+                            if label1==label2:
+                                if random.random()<opinion_equal_p:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                            else:
+                                if random.random()<opinion_notequal_p:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                    else:
+                            if label1==label2:
+                                if random.random()<opinion_equal_n:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                            else:
+                                if random.random()<opinion_notequal_n:
+                                    print('%s\t%s\t1'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 1
+                                else:
+                                    print('%s\t%s\t0'%(user1,user2), file =ff)
+                                    opinion_dict[(user1,user2)] = 0
+                    
+    return opinion_dict
+
+
+# In[7]:
+
+
+def generate_submission(user_file, ingroup_file, manager_file, quality_file, opinion_file, submit_file, submission_rate_A, submission_rate_B, opinion_equal_p, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, quality_rate):
     user_dict = read_user_data(user_file)
     generate_ingroup(user_dict, ingroup_file)
     quality_dict = generate_qualification(user_dict, quality_file, quality_rate)
     manager_dict = read_manager_data(manager_file)
-    feedback_dict = generate_feedback(user_dict, quality_dict, manager_dict,feedback_equal_mp, feedback_equal_mn, feedback_notequal_mp, feedback_notequal_mn, feedback_equal_p, feedback_equal_n, feedback_notequal_p, feedback_notequal_n, feedback_file)
+    opinion_dict = generate_opinion(user_dict, quality_dict, manager_dict,opinion_equal_mp, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, opinion_equal_p, opinion_equal_n, opinion_notequal_p, opinion_notequal_n, opinion_file)
     with open(submit_file, "w") as sf:
-        for feedback, opinion in feedback_dict.items():
-            user1 = feedback[0]
-            user2 = feedback[1]
+        for key, opinion in opinion_dict.items():
+            user1 = key[0]
+            user2 = key[1]
             if user_dict[user1] =='A':
                 if random.random()<submission_rate_A:
                     print('%s\t%s\t%d'%(user1,user2,opinion), file =sf)
@@ -159,7 +196,7 @@ def generate_submission(user_file, ingroup_file, manager_file, quality_file, fee
     return quality_dict
 
 
-# In[7]:
+# In[8]:
 
 
 def generate_performance(quality_dict, performance_rate_p, performance_rate_n, performance_file):
@@ -176,11 +213,9 @@ def generate_performance(quality_dict, performance_rate_p, performance_rate_n, p
                     print('%s\t%d'%(user,1), file =pf)
                 else:
                     print('%s\t%d'%(user,0), file =pf)
-                    
-                
 
 
-# In[8]:
+# In[9]:
 
 
 def generate_ingroup(user_dict, ingroup_file):
@@ -193,31 +228,33 @@ def generate_ingroup(user_dict, ingroup_file):
                     print('%s\t%s\t%d'%(user1,user2,0), file =igf)
 
 
-# In[9]:
+# In[10]:
 
 
-user_file = './data/gender.txt'
-quality_file = './data/1/quality.txt'
-feedback_file='./data/1/feedback.txt'
-submit_file = './data/1/submit.txt'
-performance_file = './data/1/performance.txt'
-manager_file='./data/manager.txt'
-ingroup_file = './data/1/ingroup.txt'
-feedback_equal_mp = 0.9
-feedback_equal_mn = 0.05
-feedback_notequal_mp =0.6
-feedback_notequal_mn =0.01
-feedback_equal_p = 0.8
-feedback_equal_n = 0.05
-feedback_notequal_p =0.5
-feedback_notequal_n =0.01
+'''
+user_file = '../organization/data/1/label.txt'
+quality_file = '../organization/data/1/quality.txt'
+opinion_file='../organization/data/1/opinion.txt'
+submit_file = '../organization/data/1/submit.txt'
+performance_file = '../organization/data/1/performance.txt'
+manager_file='../organization/data/1/manager.txt'
+ingroup_file = '../organization/data/1/ingroup.txt'
+opinion_equal_mp = 0.9
+opinion_equal_mn = 0.05
+opinion_notequal_mp =0.6
+opinion_notequal_mn =0.01
+opinion_equal_p = 0.8
+opinion_equal_n = 0.05
+opinion_notequal_p =0.5
+opinion_notequal_n =0.01
 submission_rate_A = 0.1
 submission_rate_B = 0.2
 quality_rate = 0.3
 performance_rate_p = 0.6
 performance_rate_n = 0.1
-quality_dict = generate_submission(user_file, ingroup_file, manager_file, quality_file, feedback_file, submit_file, submission_rate_A, submission_rate_B, feedback_equal_p, feedback_equal_mn, feedback_notequal_mp, feedback_notequal_mn, quality_rate)
+quality_dict = generate_submission(user_file, ingroup_file, manager_file, quality_file, opinion_file, submit_file, submission_rate_A, submission_rate_B, opinion_equal_p, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, quality_rate)
 generate_performance(quality_dict, performance_rate_p, performance_rate_n, performance_file)
+'''
 
 
 # In[ ]:
