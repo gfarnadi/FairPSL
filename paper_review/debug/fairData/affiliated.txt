@@ -1,12 +1,0 @@
-Alice, ZU	1
-Bob, Stanford	1
-Jack, UCSC	1
-John, ZU	1
-James, DPU	1
-Carol, DPU	1
-Ted, UCSC	1
-Joe, ZU	1
-Sarah, UCSC	1
-Ben, Stanford	1
-Ada, Stanford	1
-
