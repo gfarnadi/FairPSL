@@ -1,17 +1,18 @@
-#!/usr/bin/env python3
-# coding: utf-8
+from os.path import join as ojoin
 
-def fairGrounding(dataPath):
+def ground(data_path):
     # authors
     authors = []
-    with open(dataPath+'author.txt') as f:
+    author_fname = ojoin(data_path, 'author.txt')
+    with open(author_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
             authors.append(line.split()[0])
     # papers
     papers = []
-    with open(dataPath+'paper.txt') as f:
+    papers_fname = ojoin(data_path, 'paper.txt')
+    with open(papers_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -24,7 +25,8 @@ def fairGrounding(dataPath):
     reviewer_to_paper = dict()
     positive_review_rel = dict()
     positive_review_truth = dict()
-    with open(dataPath+'positiveReview.txt') as f:
+    positive_review_fname = ojoin(data_path, 'positiveReview.txt')
+    with open(positive_review_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -43,7 +45,8 @@ def fairGrounding(dataPath):
     
     # PositiveSummary
     positive_summary_rel = dict()
-    with open(dataPath+'positiveSummary.txt') as f:
+    positive_summary_fname = ojoin(data_path, 'positiveSummary.txt')
+    with open(positive_summary_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -53,7 +56,8 @@ def fairGrounding(dataPath):
     # Acceptable
     acceptable_rel = dict()
     acceptable_truth = dict()
-    with open(dataPath+'acceptable.txt') as f:
+    acceptable_fname = ojoin(data_path, 'acceptable.txt')
+    with open(acceptable_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -64,7 +68,8 @@ def fairGrounding(dataPath):
     
     # Submits
     submits_rel = dict()
-    with open(dataPath+'submits.txt') as f:
+    submits_fname = ojoin(data_path, 'submits.txt')
+    with open(submits_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -183,7 +188,8 @@ def fairGrounding(dataPath):
         hard_rules.append((None, body, head))
     
     affiliation_dict = dict()
-    with open(dataPath+'affiliation.txt') as f:
+    affiliation_fname = ojoin(data_path, 'affiliation.txt')
+    with open(affiliation_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -192,7 +198,8 @@ def fairGrounding(dataPath):
             affiliation_dict[author] = institute
             
     high_rank_rel = dict()
-    with open(dataPath+'highRank.txt') as f:
+    high_rank_fname = ojoin(data_path, 'highRank.txt')
+    with open(high_rank_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -200,7 +207,8 @@ def fairGrounding(dataPath):
             high_rank_rel[institute] = float(truth)
             
     student_rel = dict()
-    with open(dataPath+'student.txt') as f:
+    student_fname = ojoin(data_path, 'student.txt')
+    with open(student_fname) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -219,7 +227,6 @@ def fairGrounding(dataPath):
     atoms = {}
     atoms['review']   =  positive_review_truth
     atoms['acceptable']   =  acceptable_truth
-    #atoms = dict(review=positive_review_rel,acceptable=acceptable_rel, presents=presents_rel)
     
     return rules, hard_rules, counts, atoms
 

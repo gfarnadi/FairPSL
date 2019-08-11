@@ -1,13 +1,17 @@
-from fair_grounding import fairGrounding
-from inference import mapInference, fairMapInference
-from fair_evaluation import evaluate, accuracy
-from data_generator import saveFile
+import os, sys
+SCRIPTDIR = os.path.dirname(__file__)
+ENGINDIR = os.path.join(SCRIPTDIR, '..', '..', 'engines')
+sys.path.append(os.path.abspath(ENGINDIR))
+from fpsl_cvxpy import mapInference, fairMapInference
+
+from grounding import ground
+from evaluation import evaluate, accuracy
 
 def runModel(dataPath,epsilon,fairMeasureCode):
-    rules, hard_rules, counts, _ = fairGrounding(dataPath)
+    rules, hard_rules, counts, _ = ground(dataPath)
     results = mapInference(rules, hard_rules)
     print (results)
-    print(evaluate(results, counts))
+    print(evaluate(results, counts, fairMeasureCode))
     results = fairMapInference(rules, hard_rules, counts, epsilon,fairMeasureCode)
     print (results)
     print(evaluate(results, counts,fairMeasureCode))
@@ -24,7 +28,7 @@ def runExperiment(dataPath, resultPath):
         text+='dataset No.'+str(i)+'\n' 
         text+='---------------------------'+'\n'
         text+='---------------------------'+'\n'
-        rules, hard_rules, counts, atoms = fairGrounding(dataPath+str(i)+'/')
+        rules, hard_rules, counts, atoms = ground(dataPath+str(i)+'/')
         for code in fairMeasureCodes:
             print(code)
             results = mapInference(rules, hard_rules)
@@ -51,12 +55,12 @@ def runExperiment(dataPath, resultPath):
             text+=line+'\n'
         text+='---------------------------'+'\n'
         text+='---------------------------'+'\n'
-        i+=1  
-    saveFile(resultPath,text)
-            
+        i+=1 
+    with open(resultPath, 'w') as f:
+        print(text, file=f) 
                 
             
-dataPath = './reviewData' 
+dataPath = './data/1' 
 resultPath = './results.txt'
 runExperiment(dataPath, resultPath)    
    
