@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os, sys
 SCRIPTDIR = os.path.dirname(__file__)
 ENGINDIR = os.path.join(SCRIPTDIR, '..', '..', 'engines')
@@ -33,7 +35,7 @@ def runExperiment(dataPath, resultPath):
             print(code)
             results = mapInference(rules, hard_rules)
             accuracyScore = accuracy(dataPath+str(i)+'/', results, atoms)
-            score = evaluate(results, counts,code)
+            score = evaluate(results, counts, code)
             
             text+='----------'+code+'---------------'+'\n'
             text+='----------PSL--------------'+'\n'
@@ -42,7 +44,7 @@ def runExperiment(dataPath, resultPath):
                 text+=str(score)+'\t'
                 line+=str(accuracyScore)+'\t'
             
-            text+='\n'+line+'\'+----------FairPSL----------'+'\n'
+            text+='\n'+line+'\n'+'----------FairPSL----------'+'\n'
             line = ''
             for epsilon in epsilons:
                 print(epsilon)
@@ -60,7 +62,7 @@ def runExperiment(dataPath, resultPath):
         print(text, file=f) 
                 
             
-dataPath = './data/1' 
+dataPath = './data/' 
 resultPath = './results.txt'
 runExperiment(dataPath, resultPath)    
    

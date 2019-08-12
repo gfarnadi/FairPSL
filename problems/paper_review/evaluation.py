@@ -51,7 +51,7 @@ def accuracy(dataPath, result, atoms):
     for paper in papers:
         var = vardic[paper][0]
         if var in result:
-            predict = result[var]
+            predict = float(result[var])
             truth = float(vardic[paper][1])
             if round(predict,1)>=0.5:
                 if truth ==1.0:
