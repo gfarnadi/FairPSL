@@ -69,7 +69,11 @@ def compare(cli_out, py_out):
     compare_dicts(cli_rev, py_rev)
 
 if __name__ == '__main__':
-    outputs = dict(cli='./output', cvx='./pypsl_output', mip='./mip_output')
+    outputs = {
+        'cli' : './output/psl_jar', 
+        'cvx' : './output/fpsl_cvxpy', 
+        'mip' : './output/fpsl_pulp'
+    }
     if len(sys.argv) < 3:
         print('usage: %s [cli|cvx|mip] [cli|cvx|mip]'%sys.argv[0])
         exit(1)

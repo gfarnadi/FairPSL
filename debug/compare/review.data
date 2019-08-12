@@ -8,12 +8,11 @@ predicates:
         Submits/2: closed
 
 observations:
-        Reviews: ../reviewData/reviews.txt
-        PositiveSummary: ../reviewData/positiveSummary.txt
-        Submits: ../reviewData/submits.txt
+        Reviews: ../../problems/paper_review/data/1/reviews.txt
+        PositiveSummary: ../../problems/paper_review/data/1/positiveSummary.txt
+        Submits: ../../problems/paper_review/data/1/submits.txt
 
 targets:
-        PositiveReview: ../reviewData/positiveReview.txt
-        Acceptable: ../reviewData/acceptable.txt
-        Presents: ../reviewData/presents.txt
-
+        PositiveReview: ../../problems/paper_review/data/1/positiveReview.txt
+        Acceptable: ../../problems/paper_review/data/1/acceptable.txt
+        Presents: ../../problems/paper_review/data/1/presents.txt

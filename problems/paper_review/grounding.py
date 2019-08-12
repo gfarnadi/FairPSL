@@ -40,7 +40,7 @@ def ground(data_path):
             else:
                 reviewer_to_paper[reviewer] = [paper]
             positive_review_rel[(reviewer, paper)] = (False, var_id)
-            positive_review_truth[(reviewer, paper)] = (var_id,truth )
+            positive_review_truth[(reviewer, paper)] = (var_id, truth)
             var_id += 1
     
     # PositiveSummary
@@ -78,8 +78,10 @@ def ground(data_path):
     
     # Presents
     presents_rel = dict()
+    presents_truth = dict()
     for a in authors:
         presents_rel[a] = (False, var_id)
+        presents_truth[a] = (var_id, None)
         var_id += 1
     
     
@@ -227,6 +229,7 @@ def ground(data_path):
     atoms = {}
     atoms['review']   =  positive_review_truth
     atoms['acceptable']   =  acceptable_truth
+    atoms['presents'] = presents_truth
     
     return rules, hard_rules, counts, atoms
 
