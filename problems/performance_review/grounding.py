@@ -192,17 +192,18 @@ def ground(data_path):
     
     
     # F1: ???
+    # F2 = 1
     # d: promotion(e)
     counts = []
     for e in employees:
-        F2 = 1
+        F1 = 1
         if e in employee_to_manager.keys():
             managers_e = employee_to_manager[e]
             for m in managers_e:
                 if ingroup[(m,e)] == 1:
-                    F2 = 0
+                    F1 = 0
         d = promotion_rel[e]
-        F1 = 1
+        F2 = 1
         counts.append((F1, F2, d))  
     
     atoms = {}

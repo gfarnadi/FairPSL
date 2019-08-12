@@ -72,10 +72,10 @@ if __name__ == '__main__':
     outputs = {
         'cli' : './output/psl_jar', 
         'cvx' : './output/fpsl_cvxpy', 
-        'mip' : './output/fpsl_pulp'
+        'lp' : './output/fpsl_pulp'
     }
     if len(sys.argv) < 3:
-        print('usage: %s [cli|cvx|mip] [cli|cvx|mip]'%sys.argv[0])
+        print('usage: %s [cli|cvx|lp] [cli|cvx|lp]'%sys.argv[0])
         exit(1)
         
     compare(outputs[sys.argv[1]], outputs[sys.argv[2]])
