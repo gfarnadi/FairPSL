@@ -1,44 +1,34 @@
-#!/usr/bin/env python
-# coding: utf-8
+from os.path import join as ojoin
 
-# In[1]:
+def ground(data_path):
 
-
-def fairGrounding(dataPath):
-    ######################### Loading Data ######################### 
-    ##Here (,) -> if the atom is observed => (True,) otherwise (False,)
-    # employees --> Observed
     employees = []
-    with open(dataPath+'employee.txt') as f:
+    with open(ojoin(data_path, 'employee.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
             employees.append(line.split()[0]) 
             
-    # label --> Observed
     labels = dict()
-    with open(dataPath+'label.txt') as f:
+    with open(ojoin(data_path, 'label.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
             [employee, label] = line.split()
             labels[employee] = label
             
-
-    # Performance --> Observed
     performance_rel = dict()
-    with open(dataPath+'performance.txt') as f:
+    with open(ojoin(data_path, 'performance.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
             [employee, truth] = line.split()
             performance_rel[employee] = (True, float(truth))
             
-    # Manager --> Observed
     manager_to_employee = dict()
     employee_to_manager = dict()
     manager = dict()
-    with open(dataPath+'manager.txt') as f:
+    with open(ojoin(data_path, 'manager.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -47,19 +37,16 @@ def fairGrounding(dataPath):
             employee_to_manager.setdefault(employee,[]).append(supervisor)
             manager[(supervisor, employee)] = 1
            
-    # Ingroup --> Observed
     ingroup = dict()
-    with open(dataPath+'ingroup.txt') as f:
+    with open(ojoin(data_path, 'ingroup.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
             [employee1, employee2, truth] = line.split()
             ingroup[(employee1, employee2)] = float(truth)
             
-            
-    # Submitted opinion --> Observed
     submit_rel = dict()
-    with open(dataPath+'submit.txt') as f:
+    with open(ojoin(data_path, 'submit.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -68,11 +55,9 @@ def fairGrounding(dataPath):
     
     var_id = 0
   
-    # opinion --> hidden
-    opinion = dict()
     opinion_truth = dict()
     opinion_rel = dict()
-    with open(dataPath+'opinion.txt') as f:
+    with open(ojoin(data_path, 'opinion.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -81,10 +66,9 @@ def fairGrounding(dataPath):
             opinion_rel[(provider, reciever)] = (False, var_id)
             var_id += 1
 
-    # True Quality --> hidden
     true_quality_truth = dict()
     true_quality_rel = dict()
-    with open(dataPath+'quality.txt') as f:
+    with open(ojoin(data_path, 'quality.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -93,10 +77,9 @@ def fairGrounding(dataPath):
             true_quality_rel[employee] = (False, var_id)
             var_id += 1
               
-    # Promotion -> target (inference task)
     promotion_rel = dict()
     promotion_truth = dict()
-    with open(dataPath+'promotion.txt') as f:
+    with open(ojoin(data_path, 'promotion.txt')) as f:
         for line in f:
             line = line.strip()
             if not line: continue
@@ -105,9 +88,6 @@ def fairGrounding(dataPath):
             promotion_rel[employee] = (False, var_id)
             var_id += 1
         
-    ######################### Grounding the model #########################  
-    ##Here (,) -> if the atom is negated => (True,) otherwise (False,)
-    ##And (,,) -> the first one is weight of the rule, and the second is the body and the third is the head of the rule
     rules = []
     hard_rules = []
     
@@ -211,8 +191,7 @@ def fairGrounding(dataPath):
         rules.append((1, body, head))
     
     
-    #atoms = dict(review=positive_review_rel,acceptable=acceptable_rel, presents=presents_rel)
-    # F1: ingroup(e,m) F2:manager(m,e)
+    # F1: ???
     # d: promotion(e)
     counts = []
     for e in employees:
@@ -229,13 +208,5 @@ def fairGrounding(dataPath):
     atoms = {}
     atoms['quality']   =  true_quality_truth
     atoms['promotion']   =  promotion_truth
-    #atoms = dict(review=positive_review_rel,acceptable=acceptable_rel, presents=presents_rel)
     
     return rules, hard_rules, counts, atoms
-
-
-# In[ ]:
-
-
-
-

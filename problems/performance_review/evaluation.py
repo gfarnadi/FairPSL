@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
 
 def calculate(counts,result):
     n1 = 0.0
@@ -49,7 +44,6 @@ def evaluate(result, counts, fairMeasureCode):
         RC = (1-p1)/(1-p2)
         return RC
   
-  
 def accuracy(dataPath, result, atoms): 
     employees = []
     with open(dataPath+'employee.txt') as f:
@@ -62,9 +56,9 @@ def accuracy(dataPath, result, atoms):
     for e in employees:
         var = vardic[e][0]
         if var in result:
-            predict = result[var]
+            predict = float(result[var])
             truth = float(vardic[e][1])
-            if round(float(predict),1)>=0.5:
+            if round(predict, 1)>=0.5:
                 if truth ==1.0:
                     score+=1.0
             else:

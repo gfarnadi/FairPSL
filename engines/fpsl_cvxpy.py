@@ -1,6 +1,10 @@
 import cvxpy
 
 GAMMA = 100
+solver_map = {
+    'cvxopt': cvxpy.CVXOPT,
+    'gurobi': cvxpy.GUROBI
+}
 
 '''
  - *r_list* is a list of tuples (weight, body, head)
@@ -12,7 +16,7 @@ GAMMA = 100
    False otherwise
 '''
 
-def mapInference(rules, hard_rules):
+def mapInference(rules, hard_rules, solver='cvxopt'):
     
     vid_dict = dict()
     var_ids = set()
@@ -34,14 +38,14 @@ def mapInference(rules, hard_rules):
     constraints = bounds + hard_constraints
     objective = cvxpy.Minimize(f)
     problem = cvxpy.Problem(objective, constraints)
-    problem.solve()
+    problem.solve(solver=solver_map[solver])
 
     results = dict()
     for vid in var_ids:
         results[vid] = vid_dict[vid].value
     return results
 
-def fairMapInference(rules, hard_rules, counts,epsilon,fairMeasureCode):
+def fairMapInference(rules, hard_rules, counts,epsilon,fairMeasureCode, solver='cvxopt'):
     vid_dict = dict()
     var_ids = set()
     
@@ -62,7 +66,7 @@ def fairMapInference(rules, hard_rules, counts,epsilon,fairMeasureCode):
     
     objective = cvxpy.Minimize(f)
     problem = cvxpy.Problem(objective, constraints)
-    problem.solve()
+    problem.solve(solver=solver_map[solver])
 
     results = dict()
     for vid in var_ids:
