@@ -1,0 +1,28 @@
+
+Gurobi 8.1.1 (linux64) logging started Mon Aug 12 18:59:46 2019
+
+Academic license - for non-commercial use only
+
+Gurobi Optimizer version 8.1.1 build v8.1.1rc0 (linux64)
+Copyright (c) 2019, Gurobi Optimization, LLC
+
+Warning: Numeric variable name in LP file ('10000') - often the result
+         of a constant term in the left-hand side of a constraint.
+
+Read LP format model from file /tmp/265b9a3f7eb148b7987c91297d4df9bb-pulp.lp
+Reading time = 0.03 seconds
+OBJ: 18663 rows, 20474 columns, 55191 nonzeros
+Optimize a model with 18663 rows, 20474 columns and 55191 nonzeros
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [6e-01, 1e+00]
+
+Concurrent LP optimizer: dual simplex and barrier
+Showing barrier log only...
+
+Presolve removed 5522 rows and 5474 columns
+Presolve time: 0.03s
+Presolved: 13141 rows, 15001 columns, 39468 nonzeros
+

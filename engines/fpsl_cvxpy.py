@@ -16,20 +16,20 @@ solver_map = {
    False otherwise
 '''
 
-def mapInference(rules, hard_rules, solver='cvxopt'):
+def map_inference(rules, hard_rules, solver='cvxopt'):
     
     vid_dict = dict()
     var_ids = set()
     
-    allRules = rules+hard_rules
-    for _, body, head in allRules:
+    all_rules = rules + hard_rules
+    for _, body, head in all_rules:
         if (len(body)>0):
             var_ids |= set([b[1] for b in body if not b[0]])
         if (len(head)>0):
             var_ids |= set([h[1] for h in head if not h[0]])  
         
 
-    f, bounds = pslObjective(var_ids, vid_dict, rules) 
+    f, bounds = psl_objective(var_ids, vid_dict, rules) 
 
     hard_constraints = []
     if len(hard_rules) > 0:
@@ -40,30 +40,31 @@ def mapInference(rules, hard_rules, solver='cvxopt'):
     problem = cvxpy.Problem(objective, constraints)
     problem.solve(solver=solver_map[solver])
 
+
     results = dict()
     for vid in var_ids:
         results[vid] = vid_dict[vid].value
     return results
 
-def fairMapInference(rules, hard_rules, counts,epsilon,fairMeasureCode, solver='cvxopt'):
+def fair_map_inference(rules, hard_rules, counts, delta, fairness_measure, solver='cvxopt'):
+    assert(fairness_measure in ('RD', 'RR', 'RC'))
     vid_dict = dict()
     var_ids = set()
     
-    allRules = rules+hard_rules
-    for _, body, head in allRules:
+    all_rules = rules + hard_rules
+    for _, body, head in all_rules:
         var_ids |= set([b[1] for b in body if not b[0]])
         var_ids |= set([h[1] for h in head if not h[0]])  
         
 
-    f, bounds = pslObjective(var_ids, vid_dict, rules) 
+    f, bounds = psl_objective(var_ids, vid_dict, rules) 
     hard_constraints = []
     if len(hard_rules) > 0:
         hard_constraints = psl_hard_constraints(vid_dict, hard_rules)
         
-    fairness_constraints = fairConstraints(vid_dict, counts,epsilon,fairMeasureCode)
+    fairness_constraints = psl_fairness_constraints(vid_dict, counts, delta, fairness_measure)
     
     constraints= bounds + hard_constraints + fairness_constraints
-    
     objective = cvxpy.Minimize(f)
     problem = cvxpy.Problem(objective, constraints)
     problem.solve(solver=solver_map[solver])
@@ -73,82 +74,58 @@ def fairMapInference(rules, hard_rules, counts,epsilon,fairMeasureCode, solver='
         results[vid] = vid_dict[vid].value
     return results
 
-def calculate(counts,vid_dict):
+def calculate(counts, vid_dict):
     n1 = 0.0
     n2 = 0.0
     a = 0.0
     c = 0.0
-    for f1,f2,d in counts:
+    for f1, f2, d in counts:
         f1f2 = max(f1+f2-1, 0)
-        f1nf2 = max(f1-f2, 0)
+        nf1f2 = max(-f1+f2, 0)
         n1 += f1f2
-        n2 += f1nf2
+        n2 += nf1f2
         if d[0]:
             a += max(f1f2 - d[1], 0)
-            c += max(f1nf2 - d[1], 0)
+            c += max(nf1f2 - d[1], 0)
         else:
             if f1f2 == 1:
                 a += 1 - vid_dict[d[1]] 
-            if f1nf2 == 1:
+            if nf1f2 == 1:
                 c += 1 - vid_dict[d[1]]
 
     return a,c,n1,n2
 
-def riskDifferenceObjective(counts,vid_dict,epsilon):
-    a,c,n1,n2 = calculate(counts,vid_dict)
-    return GAMMA * cvxpy.pos(((n2/(n1*n2)*a-n1/(n1*n2)*c)))+cvxpy.pos(-((n2/(n1*n2)*a-n1/(n1*n2)*c)))
+def psl_fairness_constraints(vid_dict, counts, delta, fairness_measure):
+    if fairness_measure=='RD':
+        return risk_difference_constraints(counts,vid_dict,delta)
+    elif fairness_measure=='RR':
+        return risk_ratio_constraints(counts,vid_dict,delta)
+    elif fairness_measure=='RC':
+        return risk_chance_constraints(counts,vid_dict,delta) 
 
-def riskRatioObjective(counts,vid_dict,epsilon):
-    a,c,n1,n2 = calculate(counts,vid_dict)
-    return GAMMA * cvxpy.pos(n2*a-(1+epsilon)*c*n1) + cvxpy.pos((1-epsilon)*c*n1-n2*a)
-
-def riskChanceObjective(counts,vid_dict,epsilon):
-    a,c,n1,n2 = calculate(counts,vid_dict)
-    return GAMMA * cvxpy.pos(n1*n2-n2*a - (1+epsilon)*(n1*n2-n1*c)) + cvxpy.pos(((1-epsilon)*(n1*n2 -n1*c)+ n2*a-n1*n2))
-
-def riskDifferenceConstraints(counts,vid_dict,epsilon):
+def risk_difference_constraints(counts,vid_dict,delta):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
-    constraints.append((n2*a - n1*c - n1*n2*epsilon) <= 0)
-    constraints.append((n2*a - n1*c + n1*n2*epsilon) >= 0)
+    constraints.append((n2*a - n1*c - n1*n2*delta) <= 0)
+    constraints.append((n2*a - n1*c + n1*n2*delta) >= 0)
     return constraints
 
-def riskRatioConstraints(counts,vid_dict,epsilon):
+def risk_ratio_constraints(counts,vid_dict,delta):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
-    constraints.append((n2*a - (1+epsilon)*n1*c) <= 0)
-    constraints.append((n2*a - (1-epsilon)*n1*c) >= 0)
+    constraints.append((n2*a - (1+delta)*n1*c) <= 0)
+    constraints.append((n2*a - (1-delta)*n1*c) >= 0)
     return constraints
     
-def riskChanceConstraints(counts,vid_dict,epsilon):
+def risk_chance_constraints(counts,vid_dict,delta):
     a,c,n1,n2 = calculate(counts,vid_dict)
     constraints = []
-    constraints.append((-n2*a + (1+epsilon)*n1*c - epsilon*n1*n2) <= 0)
-    constraints.append((-n2*a + (1-epsilon)*n1*c + epsilon*n1*n2) >= 0)
+    constraints.append((-n2*a + (1+delta)*n1*c - delta*n1*n2) <= 0)
+    constraints.append((-n2*a + (1-delta)*n1*c + delta*n1*n2) >= 0)
     return constraints
-
-def fairObjective(vid_dict, counts,epsilon,fairMeasureCode):
-    if fairMeasureCode=='RD':
-        return riskDifferenceObjective(counts,vid_dict,epsilon)
-    elif fairMeasureCode=='RR':
-        return riskRatioObjective(counts,vid_dict,epsilon)
-    elif fairMeasureCode=='RC':
-        return riskChanceObjective(counts,vid_dict,epsilon)   
-    else:
-        print('Error: fairMeasureCode is not correct, you need to choose between RD, RR and RC.')
-
-
-def fairConstraints(vid_dict, counts,epsilon,fairMeasureCode):
-    if fairMeasureCode=='RD':
-        return riskDifferenceConstraints(counts,vid_dict,epsilon)
-    elif fairMeasureCode=='RR':
-        return riskRatioConstraints(counts,vid_dict,epsilon)
-    elif fairMeasureCode=='RC':
-        return riskChanceConstraints(counts,vid_dict,epsilon)    
-    else:
-        print('Error: fairMeasureCode is not correct, you need to choose between RD, RR and RC.') 
+   
     
-def pslObjective(var_ids, vid_dict, r_list):
+def psl_objective(var_ids, vid_dict, r_list):
     constraints = []
     
     for vid in var_ids:

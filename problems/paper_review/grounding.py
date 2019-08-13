@@ -217,12 +217,13 @@ def ground(data_path):
             [author, truth] = line.split()
             student_rel[author] = float(truth)
             
-    # F1: student(u) F2:Affiliation(v, u) & highRank(u)
+    # F1:Affiliation(v, u) & highRank(u)
+    # F2: student(u) 
     # d: presents(A)
     counts = []
     for a in authors:
-        F1 = student_rel[a]
-        F2 = high_rank_rel[affiliation_dict[a]]
+        F1 = high_rank_rel[affiliation_dict[a]]
+        F2 = student_rel[a]
         d = presents_rel[a]
         counts.append((F1, F2, d))  
     

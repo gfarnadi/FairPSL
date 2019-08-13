@@ -1,6 +1,11 @@
 from __future__ import print_function
 import pulp
 
+solver_map = {
+    'gurobi': pulp.GUROBI_CMD(msg=False)
+}
+
+#FIXME when adding constraints, use a map to match to your own id
 class Math_prob:
     def __init__(self, var_ids):
         self.num_vars = 0
@@ -81,8 +86,8 @@ class Math_prob:
             print('x_%d' %v,end='')
         print()
         
-    def pulp_solve(self):
-        problem = pulp.LpProblem(pulp.LpMinimize)
+    def pulp_solve(self, solver_name):
+        problem = pulp.LpProblem('PSL', pulp.LpMinimize)
 
         vs = self.get_vars()
         our_vars = dict()
@@ -102,8 +107,12 @@ class Math_prob:
                                         constant=cnst)
                 , sense=-1)
             problem.constraints[i] = c
-            
-        problem.solve()
+        
+        if solver_name:
+            problem.solve(solver_map[solver_name])
+        else:
+            problem.solve()
+    
         self.solutions.clear()
         for variable in problem.variables():
             vnum = int(variable.name)
@@ -111,6 +120,71 @@ class Math_prob:
                 vid = self.vid_dict[vnum]
                 self.solutions[vid] = variable.varValue
         self.obj_val = pulp.value(problem.objective)
+
+def calculate_ac_info(counts):
+    n1 = 0
+    n2 = 0
+    a_const = 0
+    a_vars = []
+    c_const = 0
+    c_vars = []
+    for f1, f2, d in counts:
+        if f1 == 1 and f2 == 1:
+            n1 += 1
+            if d[0]:
+                a_const += d[1]
+            else:
+                a_vars.append(d[1])
+        
+        if f1 == 0 and f2 == 1:
+            n2 += 1
+            if d[0]:
+                c_const += d[1]
+            else:
+                c_vars.append(d[1])
+    
+    return n1, n2, a_const, a_vars, c_const, c_vars
+
+def add_RD_constraints(problem, delta, ac_info):
+    n1, n2, a_const, a_vars, c_const, c_vars = ac_info
+    var_ids = a_vars + c_vars
+    
+    coefs = [-n2] * len(a_vars) + [n1] * len(c_vars)
+    const_part = - (n2 * a_const) + (n1 * c_const) - (n1 * n2 * delta)
+    problem.add_linear_constraint(var_ids, coefs, const_part)
+
+    coefs = [n2] * len(a_vars) + [-n1] * len(c_vars)
+    const_part = (n2 * a_const) - (n1 * c_const) - (n1 * n2 * delta)
+    problem.add_linear_constraint(var_ids, coefs, const_part)
+
+def add_RR_constraints(problem, delta, ac_info):
+    n1, n2, a_const, a_vars, c_const, c_vars = ac_info
+    var_ids = a_vars + c_vars
+    
+    nd = (1+delta) * n1
+    coefs = [-n2] * len(a_vars) + [nd] * len(c_vars)
+    const_part = - (n2 * a_const) + (nd * c_const) - (n1 * n2 * delta)
+    problem.add_linear_constraint(var_ids, coefs, const_part)
+    
+    nd = (1-delta) * n1
+    coefs = [n2] * len(a_vars) + [-nd] * len(c_vars)
+    const_part = (n2 * a_const) - (nd * c_const) - (n1 * n2 * delta)
+    problem.add_linear_constraint(var_ids, coefs, const_part)
+
+def add_RC_constraints(problem, delta, ac_info):
+    n1, n2, a_const, a_vars, c_const, c_vars = ac_info
+    var_ids = a_vars + c_vars
+    
+    nd = (1+delta) * n1    
+    coefs = [n2] * len(a_vars) + [-nd] * len(c_vars)
+    const_part = (n2 * a_const) - (nd * c_const)
+    problem.add_linear_constraint(var_ids, coefs, const_part)
+
+    nd = (1-delta) * n1
+    coefs = [-n2] * len(a_vars) + [nd] * len(c_vars)
+    const_part = -(n2 * a_const) + (nd * c_const)
+    problem.add_linear_constraint(var_ids, coefs, const_part)
+
 
    
 def psl_rule(problem, rule, signs, hard=False):
@@ -197,7 +271,7 @@ def add_rule(rule, signs, weight, problem):
         else:
             psl_rule(problem, rule, signs, True)
 
-def solve_mip(r_list):
+def create_problem(r_list):
     var_ids = set()
     for _, body, head in r_list:
         var_ids |= set([b[1] for b in body if not b[0]])
@@ -209,7 +283,27 @@ def solve_mip(r_list):
         rule = tuple([b[:-1] for b in body] + [h[:-1] for h in head])
         signs = tuple([b[-1] for b in body] + [h[-1] for h in head])
         add_rule(rule, signs, weight, problem)
-    problem.pulp_solve()
+    return problem
+
+def map_inference(rules, hard_rules, solver=''):
+    r_list = rules + hard_rules
+    problem = create_problem(r_list)
+    problem.pulp_solve(solver)
+    return problem.solutions
+
+constraint_func = {
+    'RD': add_RD_constraints,
+    'RR': add_RR_constraints,
+    'RC': add_RC_constraints
+    }
+
+def fair_map_inference(rules, hard_rules, counts, delta, fairness_measure, solver=''):
+    r_list = rules + hard_rules
+    problem = create_problem(r_list)
+    ac_info = calculate_ac_info(counts)
+    add_fairness_constraints = constraint_func[fairness_measure]
+    add_fairness_constraints(problem, delta, ac_info)
+    problem.pulp_solve(solver)
     return problem.solutions
     
 if __name__ == '__main__':

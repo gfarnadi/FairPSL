@@ -4,21 +4,10 @@ import os, sys
 SCRIPTDIR = os.path.dirname(__file__)
 ENGINDIR = os.path.join(SCRIPTDIR, '..', '..', 'engines')
 sys.path.append(os.path.abspath(ENGINDIR))
-from fpsl_cvxpy import mapInference, fairMapInference
+from fpsl_pulp import map_inference, fair_map_inference
 
 from grounding import ground
 from evaluation import evaluate, accuracy
-
-def runModel(dataPath,epsilon,fairMeasureCode):
-    rules, hard_rules, counts, _ = ground(dataPath)
-    results = mapInference(rules, hard_rules)
-    print (results)
-    print(evaluate(results, counts, fairMeasureCode))
-    results = fairMapInference(rules, hard_rules, counts, epsilon,fairMeasureCode, solver='gurobi')
-    print (results)
-    print(evaluate(results, counts,fairMeasureCode))
-    
-    
 
 def runExperiment(dataPath, resultPath):
     epsilons = [0.001,0.005, 0.01, 0.05, 0.1,0.5]
@@ -33,7 +22,7 @@ def runExperiment(dataPath, resultPath):
         rules, hard_rules, counts, atoms = ground(dataPath+str(i)+'/')
         for code in fairMeasureCodes:
             print(code)
-            results = mapInference(rules, hard_rules)
+            results = map_inference(rules, hard_rules, solver='gurobi')
             accuracyScore = accuracy(dataPath+str(i)+'/', results, atoms)
             score = evaluate(results, counts, code)
             
@@ -48,7 +37,7 @@ def runExperiment(dataPath, resultPath):
             line = ''
             for epsilon in epsilons:
                 print(epsilon)
-                results = fairMapInference(rules, hard_rules, counts, epsilon,code)
+                results = fair_map_inference(rules, hard_rules, counts, epsilon,code, solver='gurobi')
                 accuracyScore = accuracy(dataPath+str(i)+'/', results, atoms)
                 line+=str(accuracyScore)+'\t'
                 score = evaluate(results, counts,code)
