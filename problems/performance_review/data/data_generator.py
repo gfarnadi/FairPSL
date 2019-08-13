@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 from __future__ import print_function
@@ -11,7 +11,6 @@ import random
 from random import shuffle
 
 
-# In[2]:
 
 
 def saveFile(path, content):
@@ -19,7 +18,7 @@ def saveFile(path, content):
         out.write(content + '\n')
 
 
-# In[3]:
+
 
 
 def generate_qualification(user_dict, quality_file, quality_rate):
@@ -35,8 +34,6 @@ def generate_qualification(user_dict, quality_file, quality_rate):
     return quality_dict
 
 
-# In[4]:
-
 
 def read_user_data(user_file):
     user_dict = {}
@@ -47,8 +44,6 @@ def read_user_data(user_file):
             user_dict[info[0]] = info[1].strip()
     return user_dict
 
-
-# In[5]:
 
 
 def read_manager_data(manager_file):
@@ -65,8 +60,6 @@ def read_manager_data(manager_file):
                 manager_dict[user2] = [user1]
     return manager_dict
 
-
-# In[6]:
 
 
 def generate_opinion(user_dict, quality_dict, manager_dict,opinion_equal_mp, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, opinion_equal_p, opinion_equal_n, opinion_notequal_p, opinion_notequal_n, opinion_file):
@@ -174,29 +167,28 @@ def generate_opinion(user_dict, quality_dict, manager_dict,opinion_equal_mp, opi
     return opinion_dict
 
 
-# In[7]:
 
-
-def generate_submission(user_file, ingroup_file, manager_file, quality_file, opinion_file, submit_file, submission_rate_A, submission_rate_B, opinion_equal_p, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, quality_rate):
+def generate_submission(user_file, ingroup_file, manager_file, quality_file, opinion_file, submit_file, promotion_file, submission_rate_A, submission_rate_B, opinion_equal_p, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, quality_rate):
     user_dict = read_user_data(user_file)
     generate_ingroup(user_dict, ingroup_file)
     quality_dict = generate_qualification(user_dict, quality_file, quality_rate)
     manager_dict = read_manager_data(manager_file)
     opinion_dict = generate_opinion(user_dict, quality_dict, manager_dict,opinion_equal_mp, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, opinion_equal_p, opinion_equal_n, opinion_notequal_p, opinion_notequal_n, opinion_file)
-    with open(submit_file, "w") as sf:
-        for key, opinion in opinion_dict.items():
-            user1 = key[0]
-            user2 = key[1]
-            if user_dict[user1] =='A':
-                if random.random()<submission_rate_A:
-                    print('%s\t%s\t%d'%(user1,user2,opinion), file =sf)
-            else:
-                if random.random()<submission_rate_B:
-                    print('%s\t%s\t%d'%(user1,user2,opinion), file =sf)
+    with open(promotion_file, "w") as pf:
+        with open(submit_file, "w") as sf:
+            for key, opinion in opinion_dict.items():
+                user1 = key[0]
+                user2 = key[1]
+                if user_dict[user1] =='A':
+                    if random.random()<submission_rate_A:
+                        print('%s\t%s\t%d'%(user1,user2,opinion), file =sf)
+                        print('%s\t%s\t%d'%(user1,user2,opinion), file =pf)
+                else:
+                    if random.random()<submission_rate_B:
+                        print('%s\t%s\t%d'%(user1,user2,opinion), file =sf)
+                        print('%s\t%s\t%d'%(user1,user2,opinion), file =pf)
     return quality_dict
 
-
-# In[8]:
 
 
 def generate_performance(quality_dict, performance_rate_p, performance_rate_n, performance_file):
@@ -215,8 +207,6 @@ def generate_performance(quality_dict, performance_rate_p, performance_rate_n, p
                     print('%s\t%d'%(user,0), file =pf)
 
 
-# In[9]:
-
 
 def generate_ingroup(user_dict, ingroup_file):
     with open(ingroup_file, 'w') as igf:
@@ -228,7 +218,7 @@ def generate_ingroup(user_dict, ingroup_file):
                     print('%s\t%s\t%d'%(user1,user2,0), file =igf)
 
 
-# In[10]:
+# In[ ]:
 
 
 '''
@@ -236,6 +226,7 @@ user_file = '../organization/data/1/label.txt'
 quality_file = '../organization/data/1/quality.txt'
 opinion_file='../organization/data/1/opinion.txt'
 submit_file = '../organization/data/1/submit.txt'
+promotion_file = '../organization/data/1/promotion.txt'
 performance_file = '../organization/data/1/performance.txt'
 manager_file='../organization/data/1/manager.txt'
 ingroup_file = '../organization/data/1/ingroup.txt'
@@ -252,13 +243,7 @@ submission_rate_B = 0.2
 quality_rate = 0.3
 performance_rate_p = 0.6
 performance_rate_n = 0.1
-quality_dict = generate_submission(user_file, ingroup_file, manager_file, quality_file, opinion_file, submit_file, submission_rate_A, submission_rate_B, opinion_equal_p, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, quality_rate)
+quality_dict = generate_submission(user_file, ingroup_file, manager_file, quality_file, opinion_file, submit_file, promotion_file, submission_rate_A, submission_rate_B, opinion_equal_p, opinion_equal_mn, opinion_notequal_mp, opinion_notequal_mn, quality_rate)
 generate_performance(quality_dict, performance_rate_p, performance_rate_n, performance_file)
 '''
-
-
-# In[ ]:
-
-
-
 
