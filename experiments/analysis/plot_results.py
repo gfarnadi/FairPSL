@@ -46,18 +46,19 @@ def plot_results(results, pdf_filename):
         y_fpsl = []
         for result in results:
             y_psl.append([result[measure]['psl']['score'] for _ in range(6)])
-            y_fpsl.append(list(reversed(result[measure]['fairpsl']['score'])))
+            #y_fpsl.append(list(reversed(result[measure]['fairpsl']['score'])))
+            y_fpsl.append(list(result[measure]['fairpsl']['score']))
 
         lines = []
         labels = []
         for j, y in enumerate(y_fpsl):
             line = plt.plot(x, y, 'o-')
             lines.append(line[0])
-            labels.append('FairPSL(%d)'%j)
+            labels.append('FairPSL(%d)'%(j+1))
         for j, y in enumerate(y_psl):
             line = plt.plot(x, y, '--')
             lines.append(line[0])
-            labels.append('PSL(%d)'%j)
+            labels.append('PSL(%d)'%(j+1))
 
         plt.xlim([0.001, 0.5])
         plt.xscale('log')
