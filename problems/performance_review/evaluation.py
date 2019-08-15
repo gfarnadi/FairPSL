@@ -88,6 +88,10 @@ def accuracy_all(dataPath, result, atoms):
     size_A = 0.0
     size_B = 0.0
     for e in employees:
+        if labels[e] =='A':
+            size_A+=1
+        else:
+            size_B+=1
         var = vardic[e][0]
         if var in result:
             predict = float(result[var])
@@ -97,19 +101,16 @@ def accuracy_all(dataPath, result, atoms):
                     score+=1.0
                     if labels[e] =='A':
                         score_A+=1
-                        size_A+=1
                     else:
-                        score_B+=1
-                        size_B+=1
+                        score_B+=1   
             else:
                 if truth ==0.0:
                     score+=1.0
                     if labels[e] =='A':
                         score_A+=1
-                        size_A+=1
                     else:
                         score_B+=1
-                        size_B+=1
+                        
     score = (float(score) / float(len(employees)))
     score_A = (float(score_A) / float(size_A))
     score_B = (float(score_B) / float(size_B))
