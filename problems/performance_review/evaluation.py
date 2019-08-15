@@ -114,7 +114,7 @@ def accuracy_all(dataPath, result, atoms):
     score = (float(score) / float(len(employees)))
     score_A = (float(score_A) / float(size_A))
     score_B = (float(score_B) / float(size_B))
-    return score, score_A, score_A
+    return score, score_A, score_B
 
 def accuracy_opinion(dataPath, result, atoms): 
     employees = []
