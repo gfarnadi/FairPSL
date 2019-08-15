@@ -121,7 +121,8 @@ def ground(data_path):
                 body = [submit_rel[(e1,e2)]+(True,)]
                 head = [opinion_rel[(e1,e2)] + (True,)]
                 hard_rules.append((None, body, head))
-           
+
+    '''    
     # 1: Quality(e1)  & Employee(e1) & Employee(e2) -> Opinion(e1,e2) 
     for e1 in employees:
         for e2 in employees:
@@ -137,25 +138,26 @@ def ground(data_path):
             body = [true_quality_rel[e1]+ (False,)] 
             head = [opinion_rel[(e1,e2)]+ (False,)]
             rules.append((1, body, head))                
-
+    '''
     
-    #1: Opinion(e1,e2) & Manager(m,e1) -> Opinion(m,e2)
+    #1: Opinion(m,e2) & Manager(m,e1) -> Opinion(e1,e2)
     for m, emp in manager_to_employee.items():
         for e1 in emp:
             for e2 in employees:
                 if e1==e2 or m==e2: continue
-                body = [opinion_rel[e1,e2]+ (False,)] 
-                head = [opinion_rel[(m,e2)]+ (False,)]
+                body = [opinion_rel[m,e2]+ (False,)] 
+                head = [opinion_rel[(e1,e2)]+ (False,)]
                 rules.append((1, body, head))
                 
-    #1: ~Opinion(e1,e2) & Manager(m,e1) -> ~Opinion(m,e2)
+    #1: ~Opinion(m,e2) & Manager(m,e1) -> ~Opinion(e1,e2)
     for m, emp in manager_to_employee.items():
         for e1 in emp:
             for e2 in employees:
                 if e1==e2 or m==e2: continue
-                body = [opinion_rel[e1,e2]+ (True,)] 
-                head = [opinion_rel[(m,e2)]+ (True,)]
+                body = [opinion_rel[m,e2]+ (True,)] 
+                head = [opinion_rel[(e1,e2)]+ (True,)]
                 rules.append((1, body, head))
+
                 
     #1: opinion(m,e) & Manager(m,e) -> Quality(e) 
     for m, emp in manager_to_employee.items():
@@ -203,11 +205,15 @@ def ground(data_path):
                 if ingroup[(m,e)] == 1:
                     F1 = 0
         d = promotion_rel[e]
-        F2 = 1
+        if e in manager_to_employee.keys():
+            F2 = 0
+        else:
+            F2 = 1
         counts.append((F1, F2, d))  
     
     atoms = {}
     atoms['quality']   =  true_quality_truth
     atoms['promotion']   =  promotion_truth
-    
+    atoms['opinion']   =  opinion_truth
+
     return rules, hard_rules, counts, atoms
