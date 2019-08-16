@@ -47,7 +47,7 @@ def get_dotstr(hierarcy_tree, labels):
     for e in labels:
         style_str = ''
         if labels[e] == possible_labels[0]:
-            style_str = ', style=filled'
+            style_str = ', style=filled, color=gray45'
         dotstr += ' node_%s [label="%s", shape=circle%s];\n'%(e, e, style_str)
     for m, e in hierarcy_tree:
         dotstr += ' node_%s -> node_%s ;\n'%(m, e)
