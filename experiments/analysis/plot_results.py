@@ -38,6 +38,9 @@ def extract_results(input_file):
 
 
 def plot_results(results, pdf_filename):
+    num_datasets = len(results)
+    cmap = plt.get_cmap('tab10')
+
     plt.figure(figsize=(15, 3))
     for i, measure in enumerate(('RD', 'RR', 'RC')):
         plt.subplot(1, 3, i+1)
@@ -46,17 +49,19 @@ def plot_results(results, pdf_filename):
         y_fpsl = []
         for result in results:
             y_psl.append([result[measure]['psl']['score'] for _ in range(6)])
-            #y_fpsl.append(list(reversed(result[measure]['fairpsl']['score'])))
             y_fpsl.append(list(result[measure]['fairpsl']['score']))
 
         lines = []
         labels = []
-        for j, y in enumerate(y_fpsl):
-            line = plt.plot(x, y, 'o-')
+        for j in range(num_datasets):
+            color = cmap(j)
+            y = y_fpsl[j]
+            line = plt.plot(x, y, 'o-', color=color)
             lines.append(line[0])
             labels.append('FairPSL(%d)'%(j+1))
-        for j, y in enumerate(y_psl):
-            line = plt.plot(x, y, '--')
+
+            y = y_psl[j]
+            line = plt.plot(x, y, '--', color=color)
             lines.append(line[0])
             labels.append('PSL(%d)'%(j+1))
 
