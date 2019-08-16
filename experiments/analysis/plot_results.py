@@ -66,8 +66,9 @@ def plot_results(results, pdf_filename):
         _ = plt.xlabel(r'$\delta$', fontsize=15)
         _ = plt.ylabel(measure, fontsize=15)
 
-    _ = plt.figlegend(lines, labels, loc ='upper center', ncol=6, columnspacing=7, 
+    _ = plt.figlegend(lines, labels, loc ='upper center', ncol=len(results), columnspacing=7, 
                       borderaxespad=0)
+    plt.subplots_adjust(top=0.8)
     plt.savefig(pdf_filename, bbox_inches='tight')
 
 
