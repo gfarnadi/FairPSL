@@ -75,10 +75,38 @@ def generate_label(hierachy_dict, sub_ordinates_dict, employees, manager_file, l
     print(size_A)        
     with open(employees_file, 'w') as ef:
         for e in employees:
-            print('%s\t1'%(e), file = ef)
+            print('%s'%(e), file = ef)
 
 
-# In[5]:
+# In[66]:
+
+
+def generate_label_2(hierachy_dict, sub_ordinates_dict, employees, manager_file, label_file, employees_file, delta):
+    junior_employees = []
+    with open(manager_file, 'w') as mf:
+        for e, ms in sub_ordinates_dict.items():
+            for m in ms:
+                print('%s\t%s'%(m,e), file=mf)
+                
+    for m,emp in hierachy_dict.items():
+        if len(emp)==0:
+            junior_employees.append(m)
+    size_A = 0        
+    with open(label_file, 'w') as lf:
+        for e in employees:
+            if random.random()<0.5:
+                print('%s\tA'%(e), file=lf)
+                size_A+=1
+            else:
+                print('%s\tB'%(e), file=lf)
+    print(size_A)        
+    with open(employees_file, 'w') as ef:
+        for e in employees:
+            print('%s'%(e), file = ef)
+            
+
+
+# In[102]:
 
 
 def run_generator(k, size, manager_file, label_file, employees_file, delta):
@@ -86,19 +114,30 @@ def run_generator(k, size, manager_file, label_file, employees_file, delta):
     print(len(employees))
     print(len(hierachy_dict.keys()))
     print(len(sub_ordinates_dict.keys()))
-    generate_label(hierachy_dict, sub_ordinates_dict, employees, manager_file, label_file, employees_file, delta)
+    #glass cieling
+    #generate_label(hierachy_dict, sub_ordinates_dict, employees, manager_file, label_file, employees_file, delta)
+    #uniform
+    generate_label_2(hierachy_dict, sub_ordinates_dict, employees, manager_file, label_file, employees_file, delta)
+    
+    
 
 
-# In[6]:
+# In[111]:
 
 
-k = 3
-size = 200
+k = 5
+size = 100
 manager_file = '../data/test/manager.txt'
 label_file = '../data/test/label.txt'
 employees_file = '../data/test/employee.txt'
-delta = 0.8
+delta = 0.7
 run_generator(k, size, manager_file, label_file, employees_file, delta)
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
